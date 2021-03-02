@@ -6,6 +6,11 @@ import unittest
 from objprint import objstr
 
 
+class C:
+    a = (1, 2, 3)
+    pass
+
+
 class TestObjStr(unittest.TestCase):
     def test_list(self):
         lsts = (
@@ -25,3 +30,18 @@ class TestObjStr(unittest.TestCase):
         )
         for obj, s in lsts:
             self.assertEqual(objstr(obj), s)
+
+    def test_dict(self):
+        lsts = (
+            ({}, "{}"),
+            ({"Age": "19"}, "{'Age': '19'}"),
+            ({"Number": 1, "Letter": 'a'}, "{'Number': 1, 'Letter': 'a'}")
+        )
+        for obj, s in lsts:
+            self.assertEqual(objstr(obj), s)
+
+    def test_get_ellipsis(self):
+        self.assertEqual("<C ... >", objstr(C(), 5))
+
+    def test_None(self):
+        self.assertEqual('None', objstr(None))
