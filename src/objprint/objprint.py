@@ -85,6 +85,7 @@ class ObjPrint:
     def _load_config(self, config):
         for key, val in config.items():
             setattr(self, key, val)
+        self._configs = config
 
     def add_indent(self, line, indent_level):
         if isinstance(line, str):
