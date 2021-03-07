@@ -7,7 +7,6 @@ from objprint import objstr
 
 
 class C:
-    a = (1, 2, 3)
     pass
 
 
