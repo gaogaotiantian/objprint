@@ -1,4 +1,7 @@
 # objprint
+
+[![build](https://github.com/gaogaotiantian/objprint/workflows/build/badge.svg)](https://github.com/gaogaotiantian/objprint/actions?query=workflow%3Abuild)  [![coverage](https://img.shields.io/codecov/c/github/gaogaotiantian/objprint)](https://codecov.io/gh/gaogaotiantian/objprint)  [![pypi](https://img.shields.io/pypi/v/objprint.svg)](https://pypi.org/project/objprint/)  [![support-version](https://img.shields.io/pypi/pyversions/objprint)](https://img.shields.io/pypi/pyversions/objprint)  [![license](https://img.shields.io/github/license/gaogaotiantian/objprint)](https://github.com/gaogaotiantian/objprint/blob/master/LICENSE)  [![commit](https://img.shields.io/github/last-commit/gaogaotiantian/objprint)](https://github.com/gaogaotiantian/objprint/commits/master)
+
 A library that can print Python objects in human readable format
 
 ## Install
@@ -68,6 +71,42 @@ class Player:
 
 # This will print the same thing as above
 print(Player())
+```
+
+### objstr
+
+If you want the ``str`` representation of the object, instead of printing it on the screen,
+you can use ``objstr`` function
+
+```python
+from objprint import objstr
+
+s = objstr(my_object)
+```
+
+### config
+
+```objprint``` formats the output based on some configs
+
+* ``depth`` determines how deep ```objprint``` goes into nested data structures
+* ``indent`` determines the indentation
+* ``width`` determines the maximum width a data structure will be presented as a single line
+* ``elements`` determines the maximum number of elements that will be displayed 
+
+You can set the configs globally using ``config`` function
+
+```python
+from objprint import config
+
+config(indent=4)
+```
+
+Or you can do a one time config by passing the arguments into ``objprint`` function
+
+```python
+from objprint import objprint
+
+objprint(var, indent=4)
 ```
 
 ## Bugs/Requests
