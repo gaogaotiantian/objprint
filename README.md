@@ -109,6 +109,22 @@ from objprint import objprint
 objprint(var, indent=4)
 ```
 
+### install
+
+Maybe you don't want to import ``objprint`` in every single file that you want to use. You can
+use ``install`` to make it globally accessible
+
+```python
+from objprint import install
+
+# Now you can use objprint() in any file
+install()
+
+# You can specify a name for objprint()
+install("op")
+op(my_object)
+```
+
 ## Bugs/Requests
 
 Please send bug reports and feature requests through [github issue tracker](https://github.com/gaogaotiantian/objprint/issues).

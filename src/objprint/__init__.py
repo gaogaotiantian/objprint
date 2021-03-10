@@ -11,11 +11,13 @@ _objprint = ObjPrint()
 objprint = _objprint.objprint
 objstr = _objprint.objstr
 config = _objprint.config
+install = _objprint.install
 
 
 __all__ = [
     "objprint",
     "objstr",
     "config",
-    "add_objprint"
+    "add_objprint",
+    "install"
 ]
