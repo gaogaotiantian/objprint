@@ -120,7 +120,7 @@ class ObjPrint:
             elems = first_elems
 
         multiline = False
-        if len(header) > 1:
+        if len(header) > 1 and len(elems) > 0:
             # If it's not built in, always do multiline
             multiline = True
         elif any(("\n" in elem for elem in elems)):
