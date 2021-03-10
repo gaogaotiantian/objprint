@@ -79,6 +79,10 @@ class ObjPrint:
 
         self._load_config(self._configs)
 
+    def install(self, name="objprint"):
+        import builtins
+        builtins.__dict__[name] = self.objprint
+
     def _save_config(self):
         return {key: val for key, val in self._configs.items()}
 

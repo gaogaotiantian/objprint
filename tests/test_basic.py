@@ -5,7 +5,7 @@
 import io
 import unittest
 from contextlib import redirect_stdout
-from objprint import objprint, objstr, config
+from objprint import objprint, objstr, config, install
 
 
 class A:
@@ -25,3 +25,9 @@ class TestBasic(unittest.TestCase):
     def test_config(self):
         config(indent=4)
         config(indent=2)
+
+    def test_install(self):
+        install("my_objprint")
+        with io.StringIO() as buf, redirect_stdout(buf):
+            my_objprint(A())  # noqa: F821
+            self.assertTrue(len(buf.getvalue()) > 0)
