@@ -2,6 +2,7 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+import io
 import unittest
 from objprint import objstr
 
@@ -38,6 +39,10 @@ class TestObjStr(unittest.TestCase):
         )
         for obj, s in lsts:
             self.assertEqual(objstr(obj), s)
+
+    def test_one_line_object(self):
+        s = io.StringIO()
+        self.assertNotIn("\n", objstr(s))
 
     def test_get_ellipsis(self):
         self.assertEqual("<C ... >", objstr(C(), 5))
