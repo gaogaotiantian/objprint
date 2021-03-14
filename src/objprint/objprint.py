@@ -32,7 +32,7 @@ class ObjPrint:
             self._sys_print(self.objstr(obj, include=include, exclude=exclude))
             self._load_config(cfg)
         else:
-            self._sys_print(self.objstr(obj))
+            self._sys_print(self.objstr(obj, include=include,exclude=exclude))
 
     def objstr(self, obj, indent_level=0, include=[], exclude=[]):
         # If it's builtin type, return it directly
@@ -71,7 +71,7 @@ class ObjPrint:
                     if not any((re.match(pattern, key) is not None for pattern in include)):
                         continue
                 if exclude:
-                    if any((re.match(pattern, key) is None for pattern in exclude)):
+                    if any((re.match(pattern, key) is not None for pattern in exclude)):
                         continue
                 keys.append(key)
             elems = (f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}" for key in keys)
