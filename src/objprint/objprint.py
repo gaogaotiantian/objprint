@@ -32,7 +32,7 @@ class ObjPrint:
             self._sys_print(self.objstr(obj, include=include, exclude=exclude))
             self._load_config(cfg)
         else:
-            self._sys_print(self.objstr(obj, include=include,exclude=exclude))
+            self._sys_print(self.objstr(obj, include=include, exclude=exclude))
 
     def objstr(self, obj, indent_level=0, include=[], exclude=[]):
         # If it's builtin type, return it directly
