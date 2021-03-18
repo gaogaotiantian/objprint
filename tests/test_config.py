@@ -23,6 +23,29 @@ class ConfigWidth2:
         self.lst = ["This", "is", "for", "testing"]
 
 
+class Element:
+    def __init__(self):
+        self.a = "east"
+        self.b = "west"
+        self.c = "north"
+
+
+class Depth1:
+    def __init__(self):
+        self.a = Depth2()
+
+
+class Depth2:
+    def __init__(self):
+        self.a = Element()
+
+
+class MultiDepth:
+    def __init__(self):
+        self.name = "depthTest"
+        self.first = Depth1()
+
+
 class TestConfig(unittest.TestCase):
     def test_config(self):
         self.assertRaises(TypeError, lambda: config(height=50))
@@ -53,3 +76,18 @@ class TestConfig(unittest.TestCase):
             output = buf.getvalue()
         expected = "<ConfigWidth2\n  .lst = [\n    'This',\n    'is',\n    'for',\n    'testing'\n  ]\n>\n"
         self.assertEqual(output, expected)
+
+    def test_element(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            objprint(Element(), elements=2)
+            output = buf.getvalue()
+        expected = "<Element\n  .a = 'east',\n  .b = 'west',\n  ...\n>\n"
+        self.assertEqual(output, expected)
+
+    def test_depth(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            objprint(MultiDepth(), depth=2)
+            output = buf.getvalue()
+        self.assertTrue("Depth1" in output)
+        self.assertTrue("Depth2" in output)
+        self.assertFalse("Element" in output)

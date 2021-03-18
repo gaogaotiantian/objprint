@@ -4,17 +4,18 @@
 
 import io
 import unittest
+import random
 from objprint import objstr
 
 
 class C:
     pass
 
+
 class Car(object):
-    def __init__(self):
-        self.number = 1249
     def run(self):
         print("my car can run!")
+
 
 class InExclude:
     def __init__(self):
@@ -22,10 +23,17 @@ class InExclude:
         self.b = "out"
         self.c = "ex"
 
-class testObj:
+
+class B:
     def __init__(self):
-        self.name = "Andy"
-        self.car = Car()
+        self.name = "apple"
+        self.age = 10
+
+
+class Multiline:
+    def __init__(self):
+        self.lst = [1, 2, B()]
+
 
 class TestObjStr(unittest.TestCase):
     def test_list(self):
@@ -77,10 +85,14 @@ class TestObjStr(unittest.TestCase):
     def test_exclude(self):
         t = InExclude()
         expected = "<InExclude\n  .a = 'in'\n>"
-        self.assertEqual(objstr(t, exclude=['b','c']), expected)
+        self.assertEqual(objstr(t, exclude=['b', 'c']), expected)
 
-    #TODO:
-    def test_str(self):
-        t = testObj()
-        expected = "<testObj\n  .name = 'Andy',\n  .car = <Car\n    .number = 1249\n  >\n>"
-        self.assertEqual(objstr(t), expected)
+    def test_multiline(self):
+        m = Multiline()
+        expected = "<Multiline\n  .lst = [\n    1,\n    2,\n    <B\n      .name = 'apple',\n      .age = 10\n    >\n  ]\n>"
+        self.assertEqual(objstr(m), expected)
+
+    def test_woAttr(self):
+        e = random._random.Random()
+        actual = objstr(e)
+        self.assertTrue(len(actual) > 0)
