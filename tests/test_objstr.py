@@ -4,11 +4,35 @@
 
 import io
 import unittest
+import random
 from objprint import objstr
 
 
 class C:
     pass
+
+
+class Car(object):
+    def run(self):
+        print("my car can run!")
+
+
+class InExclude:
+    def __init__(self):
+        self.a = "in"
+        self.b = "out"
+        self.c = "ex"
+
+
+class B:
+    def __init__(self):
+        self.name = "apple"
+        self.age = 10
+
+
+class Multiline:
+    def __init__(self):
+        self.lst = [1, 2, B()]
 
 
 class TestObjStr(unittest.TestCase):
@@ -49,3 +73,26 @@ class TestObjStr(unittest.TestCase):
 
     def test_None(self):
         self.assertEqual('None', objstr(None))
+
+    def test_FunctionType(self):
+        self.assertEqual("<function run>", objstr(Car.run))
+
+    def test_include(self):
+        t = InExclude()
+        expected = "<InExclude\n  .a = 'in'\n>"
+        self.assertEqual(objstr(t, include=['a']), expected)
+
+    def test_exclude(self):
+        t = InExclude()
+        expected = "<InExclude\n  .a = 'in'\n>"
+        self.assertEqual(objstr(t, exclude=['b', 'c']), expected)
+
+    def test_multiline(self):
+        m = Multiline()
+        expected = "<Multiline\n  .lst = [\n    1,\n    2,\n    <B\n      .name = 'apple',\n      .age = 10\n    >\n  ]\n>"
+        self.assertEqual(objstr(m), expected)
+
+    def test_woAttr(self):
+        e = random._random.Random()
+        actual = objstr(e)
+        self.assertTrue(len(actual) > 0)
