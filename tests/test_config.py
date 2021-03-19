@@ -55,7 +55,7 @@ class TestConfig(unittest.TestCase):
             objprint(B(), indent=5, depth=2, width=60)
             self.assertTrue(len(buf.getvalue()) > 0)
 
-    def test_configIndent(self):
+    def test_config_indent(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(ConfigContent(), indent=3)
             output = buf.getvalue()
@@ -63,14 +63,14 @@ class TestConfig(unittest.TestCase):
         expectedString = "<ConfigContent\n   .name = 'Alpha'\n>\n"
         self.assertEqual(expectedString, output)
 
-    def test_configWidth(self):
+    def test_config_width(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(ConfigWidth(), width=10)
             output = buf.getvalue()
         lst = "<ConfigWidth\n  .lst = ['a', 'b']\n>\n"
         self.assertEqual(output, lst)
 
-    def test_configWidth_fail(self):
+    def test_config_width_fail(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(ConfigWidth2(), width=5)
             output = buf.getvalue()
@@ -81,14 +81,14 @@ class TestConfig(unittest.TestCase):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(Element(), elements=2)
             output = buf.getvalue()
-        self.assertTrue("a" in output)
-        self.assertTrue("b" in output)
-        self.assertFalse("c" in output)
+        self.assertIn("a", output)
+        self.assertIn("b", output)
+        self.assertNotIn("c", output)
 
     def test_depth(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(MultiDepth(), depth=2)
             output = buf.getvalue()
-        self.assertTrue("Depth1" in output)
-        self.assertTrue("Depth2" in output)
-        self.assertFalse("Element" in output)
+        self.assertIn("Depth1", output)
+        self.assertIn("Depth2", output)
+        self.assertNotIn("Element", output)

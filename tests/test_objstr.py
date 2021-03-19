@@ -74,7 +74,7 @@ class TestObjStr(unittest.TestCase):
     def test_None(self):
         self.assertEqual('None', objstr(None))
 
-    def test_FunctionType(self):
+    def test_function_type(self):
         self.assertEqual("<function run>", objstr(Car.run))
 
     def test_include(self):
@@ -92,7 +92,7 @@ class TestObjStr(unittest.TestCase):
         actual = objstr(m)
         self.assertEqual(actual.count("\n"), 9)
 
-    def test_wo_Attr(self):
+    def test_wo_attr(self):
         e = random._random.Random()
         actual = objstr(e)
         self.assertTrue(len(actual) > 0)
