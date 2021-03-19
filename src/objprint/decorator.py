@@ -2,14 +2,18 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-from .objprint import ObjPrint
-
-
-def add_objprint(orig_class):
-    op = ObjPrint()
+def add_objprint(orig_class=None, include=[], exclude=[]):
 
     def __str__(self):
-        return op.objstr(self)
+        return _objprint._get_custom_object_str(self, indent_level=0, include=include, exclude=exclude)
 
-    orig_class.__str__ = __str__
-    return orig_class
+    from . import _objprint
+
+    if orig_class is None:
+        def wrapper(cls):
+            cls.__str__ = __str__
+            return cls
+        return wrapper
+    else:
+        orig_class.__str__ = __str__
+        return orig_class

@@ -2,6 +2,7 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+import re
 from types import FunctionType
 
 
@@ -24,16 +25,16 @@ class ObjPrint:
 
         self.config(**self._configs)
 
-    def objprint(self, obj, **kwargs):
+    def objprint(self, obj, include=[], exclude=[], **kwargs):
         if kwargs:
             cfg = self._save_config()
             self.config(**kwargs)
-            self._sys_print(self.objstr(obj))
+            self._sys_print(self.objstr(obj, include=include, exclude=exclude))
             self._load_config(cfg)
         else:
-            self._sys_print(self.objstr(obj))
+            self._sys_print(self.objstr(obj, include=include, exclude=exclude))
 
-    def objstr(self, obj, indent_level=0):
+    def objstr(self, obj, indent_level=0, include=[], exclude=[]):
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
@@ -57,17 +58,26 @@ class ObjPrint:
 
             # If it has __str__ or __repr__ overloaded, honor that
             if obj.__class__.__str__ is not object.__str__ or obj.__class__.__repr__ is not object.__repr__:
-                if hasattr(obj.__str__, "__func__") and \
-                        hasattr(obj.__str__.__func__, "__module__") and \
-                        obj.__str__.__func__.__module__ == "objprint.decorator":
-                    pass
-                else:
-                    return str(obj)
-
-            if hasattr(obj, "__dict__"):
-                elems = (f".{key} = {self.objstr(val, indent_level + 1)}" for key, val in obj.__dict__.items())
-            else:
                 return str(obj)
+            return self._get_custom_object_str(obj, indent_level, include, exclude)
+
+        return self._get_pack_str(elems, type(obj), indent_level)
+
+    def _get_custom_object_str(self, obj, indent_level, include=[], exclude=[]):
+        if hasattr(obj, "__dict__"):
+            keys = []
+            for key in obj.__dict__.keys():
+                if include:
+                    if not any((re.match(pattern, key) is not None for pattern in include)):
+                        continue
+                if exclude:
+                    if any((re.match(pattern, key) is not None for pattern in exclude)):
+                        continue
+                keys.append(key)
+            elems = (f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}" for key in keys)
+        else:
+            return str(obj)
+
         return self._get_pack_str(elems, type(obj), indent_level)
 
     def config(self, **kwargs):
