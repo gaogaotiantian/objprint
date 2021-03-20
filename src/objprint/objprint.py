@@ -71,10 +71,10 @@ class ObjPrint:
             keys = []
             for key in obj.__dict__.keys():
                 if include:
-                    if not any((re.match(pattern, key) is not None for pattern in include)):
+                    if not any((re.fullmatch(pattern, key) is not None for pattern in include)):
                         continue
                 if exclude:
-                    if any((re.match(pattern, key) is not None for pattern in exclude)):
+                    if any((re.fullmatch(pattern, key) is not None for pattern in exclude)):
                         continue
                 keys.append(key)
             elems = (f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}" for key in sorted(keys))
