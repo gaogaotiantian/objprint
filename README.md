@@ -36,10 +36,10 @@ objprint(Player())
 
 ```
 <Player
-  .name = 'Alice',
   .age = 18,
+  .coins = {'bronze': 57, 'gold': 1, 'silver': 33},
   .items = ['axe', 'armor'],
-  .coins = {'gold': 1, 'silver': 33, 'bronze': 57},
+  .name = 'Alice',
   .position = <Position
     .x = 3,
     .y = 5
@@ -83,6 +83,40 @@ from objprint import objstr
 
 s = objstr(my_object)
 ```
+
+### include/exclude attributes
+
+You can include/exclude attributes using regular expression so ```objprint``` will only print
+out the attributes you are interested in.
+
+```python
+objprint(Player(), include=["name"])
+```
+```
+<Player
+  .name = 'Alice'
+>
+```
+
+```python
+objprint(Player(), exclude=[".*s"])
+```
+
+```
+<Player
+  .name = 'Alice',
+  .age = 18,
+  .position = <Position
+    .x = 3,
+    .y = 5
+  >
+>
+```
+
+If you specify both ``include`` and ``exclude``, it will do a inclusive check first, then filter out the attributes
+that match exclusive check.
+
+```include``` and ```exclude``` arguments work on ```objprint```, ```objstr``` and ```@add_objprint```.
 
 ### config
 
