@@ -52,7 +52,10 @@ class ObjPrint:
         if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
             elems = (f"{self.objstr(val, indent_level + 1)}" for val in obj)
         elif isinstance(obj, dict):
-            elems = (f"{self.objstr(key, indent_level + 1)}: {self.objstr(val, indent_level + 1)}" for key, val in obj.items())
+            elems = (
+                f"{self.objstr(key, indent_level + 1)}: {self.objstr(val, indent_level + 1)}"
+                for key, val in sorted(obj.items())
+            )
         else:
             # It's an object
 
@@ -74,7 +77,7 @@ class ObjPrint:
                     if any((re.match(pattern, key) is not None for pattern in exclude)):
                         continue
                 keys.append(key)
-            elems = (f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}" for key in keys)
+            elems = (f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}" for key in sorted(keys))
         else:
             return str(obj)
 
