@@ -59,7 +59,7 @@ class TestObjStr(unittest.TestCase):
         lsts = (
             ({}, "{}"),
             ({"Age": "19"}, "{'Age': '19'}"),
-            ({"Number": 1, "Letter": 'a'}, "{'Number': 1, 'Letter': 'a'}")
+            ({"Number": 1, "Letter": 'a'}, "{'Letter': 'a', 'Number': 1}")
         )
         for obj, s in lsts:
             self.assertEqual(objstr(obj), s)
