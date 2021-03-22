@@ -3,6 +3,7 @@
 
 
 import re
+import sys
 from types import FunctionType
 
 
@@ -25,14 +26,14 @@ class ObjPrint:
 
         self.config(**self._configs)
 
-    def objprint(self, obj, include=[], exclude=[], **kwargs):
+    def objprint(self, obj, include=[], exclude=[], file=None, **kwargs):
         if kwargs:
             cfg = self._save_config()
             self.config(**kwargs)
-            self._sys_print(self.objstr(obj, include=include, exclude=exclude))
+            self._sys_print(self.objstr(obj, include=include, exclude=exclude), file=file)
             self._load_config(cfg)
         else:
-            self._sys_print(self.objstr(obj, include=include, exclude=exclude))
+            self._sys_print(self.objstr(obj, include=include, exclude=exclude), file=file)
 
     def objstr(self, obj, indent_level=0, include=[], exclude=[]):
         # If it's builtin type, return it directly

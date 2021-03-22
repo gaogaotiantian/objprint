@@ -4,6 +4,7 @@
 
 import io
 import unittest
+import os
 from contextlib import redirect_stdout
 from objprint import objprint, objstr, config, install
 
@@ -17,6 +18,19 @@ class TestBasic(unittest.TestCase):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(A())
             self.assertTrue(len(buf.getvalue()) > 0)
+
+    def test_print_to_file(self):
+        fname = "./test.txt"
+        with open(fname, "w") as f:
+            objprint(A(), file=f)
+        with open(fname, "r") as f:
+            self.assertGreater(len(f.read()), 0)
+        os.remove(fname)
+
+    def test_print_to_buffer(self):
+        with io.StringIO() as buf:
+            objprint(A(), file=buf)
+            self.assertGreater(len(buf.getvalue()), 0)
 
     def test_str(self):
         s = objstr(A())
