@@ -3,7 +3,6 @@
 
 
 import re
-import sys
 from types import FunctionType
 
 
