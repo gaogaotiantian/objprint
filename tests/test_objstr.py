@@ -21,7 +21,7 @@ class InExclude:
     def __init__(self):
         self.a = "in"
         self.b = "out"
-        self.c = "ex"
+        self.q = "ex"
 
 
 class B:
@@ -33,6 +33,20 @@ class B:
 class Multiline:
     def __init__(self):
         self.lst = [1, 2, B()]
+
+
+class FullMatch:
+    def __init__(self):
+        self.give = "h"
+        self.curve = "f"
+        self.cat = "x"
+
+
+class MatchPlus:
+    def __init__(self):
+        self.xyz = "f"
+        self.xyzz = "b"
+        self.xyq = "w"
 
 
 class TestObjStr(unittest.TestCase):
@@ -79,13 +93,29 @@ class TestObjStr(unittest.TestCase):
 
     def test_include(self):
         t = InExclude()
-        expected = "<InExclude\n  .a = 'in'\n>"
-        self.assertEqual(objstr(t, include=['a']), expected)
+        output = objstr(t, include=['a'])
+        self.assertIn("a", output)
+        self.assertNotIn("b", output)
+        self.assertNotIn("q", output)
 
     def test_exclude(self):
         t = InExclude()
-        expected = "<InExclude\n  .a = 'in'\n>"
-        self.assertEqual(objstr(t, exclude=['b', 'c']), expected)
+        output = objstr(t, exclude=['b', 'q'])
+        self.assertIn("a", output)
+        self.assertNotIn("b", output)
+        self.assertNotIn("q", output)
+
+    def test_exclude_indent(self):
+        t = InExclude()
+        expected = "<InExclude\n    .a = 'in'\n  >"
+        self.assertEqual(objstr(t, indent_level=1, exclude=['b', 'q']), expected)
+
+    def test_include_exclude_mix(self):
+        t = InExclude()
+        output = objstr(t, include=['a', 'b'], exclude=['b', 'q'])
+        self.assertIn("a", output)
+        self.assertNotIn("b", output)
+        self.assertNotIn("q", output)
 
     def test_multiline(self):
         m = Multiline()
@@ -96,3 +126,17 @@ class TestObjStr(unittest.TestCase):
         e = random._random.Random()
         actual = objstr(e)
         self.assertTrue(len(actual) > 0)
+
+    def test_full_match(self):
+        f = FullMatch()
+        actual = objstr(f, include=['.*e'])
+        self.assertIn("h", actual)
+        self.assertIn("f", actual)
+        self.assertNotIn("x", actual)
+
+    def test_add_match(self):
+        t = MatchPlus()
+        actual = objstr(t, include=['xyz+'])
+        self.assertIn("f", actual)
+        self.assertIn("b", actual)
+        self.assertNotIn("w", actual)
