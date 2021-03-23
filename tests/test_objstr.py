@@ -39,14 +39,14 @@ class FullMatch:
     def __init__(self):
         self.give = "h"
         self.curve = "f"
-        self.cat = "x"
+        self.head = "x"
 
 
 class MatchPlus:
     def __init__(self):
         self.xyz = "f"
         self.xyzz = "b"
-        self.xyq = "w"
+        self.xyzxz = "w"
 
 
 class TestObjStr(unittest.TestCase):
