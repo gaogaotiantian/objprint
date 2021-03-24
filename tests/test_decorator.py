@@ -19,12 +19,12 @@ class NotDecorated:
         self.age = 19
 
 
-@add_objprint(include=['a', 'b'])
+@add_objprint(include=['color1', 'color2'])
 class TestWrapper:
     def __init__(self):
-        self.a = "color"
-        self.b = "blue"
-        self.c = "yellow"
+        self.color1 = "red"
+        self.color2 = "blue"
+        self.color3 = "yellow"
 
 
 class TestDecorator(unittest.TestCase):
@@ -62,7 +62,7 @@ class TestDecorator(unittest.TestCase):
             output = buf.getvalue()
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(TestWrapper(), include=['a', 'b'])
+            objprint(TestWrapper(), include=['color1', 'color2'])
             expected = buf.getvalue()
 
         self.assertEqual(output, expected)
