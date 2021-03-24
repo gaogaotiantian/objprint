@@ -7,9 +7,9 @@ from objprint import config, objprint
 
 class ElementNum:
     def __init__(self):
-        self.a = 1
-        self.b = 2
-        self.c = 3
+        self.first = 1
+        self.second = 2
+        self.third = 3
 
 
 class TestConfig(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestConfig(unittest.TestCase):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(e)
             output = buf.getvalue()
-        self.assertIn("1", output)
-        self.assertIn("2", output)
-        self.assertNotIn("3", output)
+        self.assertIn("first", output)
+        self.assertIn("second", output)
+        self.assertNotIn("third", output)
         config(elements=None)

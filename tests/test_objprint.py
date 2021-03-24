@@ -26,19 +26,19 @@ class ConfigWidth2:
 
 class Element:
     def __init__(self):
-        self.a = "east"
-        self.b = "west"
-        self.c = "north"
+        self.first = "east"
+        self.second = "west"
+        self.third = "north"
 
 
 class Depth1:
     def __init__(self):
-        self.a = Depth2()
+        self.attri = Depth2()
 
 
 class Depth2:
     def __init__(self):
-        self.a = Element()
+        self.attri = Element()
 
 
 class MultiDepth:
@@ -49,9 +49,9 @@ class MultiDepth:
 
 class WithConfig:
     def __init__(self):
-        self.a = 1
-        self.b = 2
-        self.c = 3
+        self.elem1 = 1
+        self.elem2 = 2
+        self.elem3 = 3
 
 
 class TestObjprint(unittest.TestCase):
@@ -86,9 +86,9 @@ class TestObjprint(unittest.TestCase):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(Element(), elements=2)
             output = buf.getvalue()
-        self.assertIn("a", output)
-        self.assertIn("b", output)
-        self.assertNotIn("c", output)
+        self.assertIn("first", output)
+        self.assertIn("second", output)
+        self.assertNotIn("third", output)
 
     def test_depth(self):
         with io.StringIO() as buf, redirect_stdout(buf):
@@ -100,14 +100,14 @@ class TestObjprint(unittest.TestCase):
 
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(WithConfig(), indent=1, include=['a', 'b'])
+            objprint(WithConfig(), indent=1, include=['elem1', 'elem2'])
             output = buf.getvalue()
-        expected = "<WithConfig\n .a = 1,\n .b = 2\n>\n"
+        expected = "<WithConfig\n .elem1 = 1,\n .elem2 = 2\n>\n"
         self.assertEqual(expected, output)
 
     def test_config_exclude(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(WithConfig(), indent=1, exclude=['c'])
+            objprint(WithConfig(), indent=1, exclude=['elem3'])
             output = buf.getvalue()
-        expected = "<WithConfig\n .a = 1,\n .b = 2\n>\n"
+        expected = "<WithConfig\n .elem1 = 1,\n .elem2 = 2\n>\n"
         self.assertEqual(expected, output)

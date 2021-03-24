@@ -19,9 +19,9 @@ class Car(object):
 
 class InExclude:
     def __init__(self):
-        self.a = "in"
-        self.b = "out"
-        self.q = "ex"
+        self.pos1 = "in"
+        self.pos2 = "out"
+        self.pos3 = "ex"
 
 
 class B:
@@ -93,29 +93,29 @@ class TestObjStr(unittest.TestCase):
 
     def test_include(self):
         t = InExclude()
-        output = objstr(t, include=['a'])
-        self.assertIn("a", output)
-        self.assertNotIn("b", output)
-        self.assertNotIn("q", output)
+        output = objstr(t, include=['pos1'])
+        self.assertIn("pos1", output)
+        self.assertNotIn("pos2", output)
+        self.assertNotIn("pos3", output)
 
     def test_exclude(self):
         t = InExclude()
-        output = objstr(t, exclude=['b', 'q'])
-        self.assertIn("a", output)
-        self.assertNotIn("b", output)
-        self.assertNotIn("q", output)
+        output = objstr(t, exclude=['pos2', 'pos3'])
+        self.assertIn("pos1", output)
+        self.assertNotIn("pos2", output)
+        self.assertNotIn("pos3", output)
 
     def test_exclude_indent(self):
         t = InExclude()
-        expected = "<InExclude\n    .a = 'in'\n  >"
-        self.assertEqual(objstr(t, indent_level=1, exclude=['b', 'q']), expected)
+        expected = "<InExclude\n    .pos1 = 'in'\n  >"
+        self.assertEqual(objstr(t, indent_level=1, exclude=['pos2', 'pos3']), expected)
 
     def test_include_exclude_mix(self):
         t = InExclude()
-        output = objstr(t, include=['a', 'b'], exclude=['b', 'q'])
-        self.assertIn("a", output)
-        self.assertNotIn("b", output)
-        self.assertNotIn("q", output)
+        output = objstr(t, include=['pos1', 'pos2'], exclude=['pos2', 'pos3'])
+        self.assertIn("pos1", output)
+        self.assertNotIn("pos2", output)
+        self.assertNotIn("pos3", output)
 
     def test_multiline(self):
         m = Multiline()
@@ -130,13 +130,13 @@ class TestObjStr(unittest.TestCase):
     def test_full_match(self):
         f = FullMatch()
         actual = objstr(f, include=['.*e'])
-        self.assertIn("strGive", actual)
-        self.assertIn("strCurve", actual)
-        self.assertNotIn("strHead", actual)
+        self.assertIn("give", actual)
+        self.assertIn("curve", actual)
+        self.assertNotIn("head", actual)
 
     def test_add_match(self):
         t = MatchPlus()
         actual = objstr(t, include=['xyz+'])
-        self.assertIn("xyzVal", actual)
-        self.assertIn("xyzzVal", actual)
-        self.assertNotIn("xyzxzVal", actual)
+        self.assertIn("xyz", actual)
+        self.assertIn("xyzz", actual)
+        self.assertNotIn("xyzxz", actual)
