@@ -37,16 +37,16 @@ class Multiline:
 
 class FullMatch:
     def __init__(self):
-        self.give = "h"
-        self.curve = "f"
-        self.head = "x"
+        self.give = "strGive"
+        self.curve = "strCurve"
+        self.head = "strHead"
 
 
 class MatchPlus:
     def __init__(self):
-        self.xyz = "f"
-        self.xyzz = "b"
-        self.xyzxz = "w"
+        self.xyz = "xyzVal"
+        self.xyzz = "xyzzVal"
+        self.xyzxz = "xyzxzVal"
 
 
 class TestObjStr(unittest.TestCase):
@@ -130,13 +130,13 @@ class TestObjStr(unittest.TestCase):
     def test_full_match(self):
         f = FullMatch()
         actual = objstr(f, include=['.*e'])
-        self.assertIn("h", actual)
-        self.assertIn("f", actual)
-        self.assertNotIn("x", actual)
+        self.assertIn("strGive", actual)
+        self.assertIn("strCurve", actual)
+        self.assertNotIn("strHead", actual)
 
     def test_add_match(self):
         t = MatchPlus()
         actual = objstr(t, include=['xyz+'])
-        self.assertIn("f", actual)
-        self.assertIn("b", actual)
-        self.assertNotIn("w", actual)
+        self.assertIn("xyzVal", actual)
+        self.assertIn("xyzzVal", actual)
+        self.assertNotIn("xyzxzVal", actual)
