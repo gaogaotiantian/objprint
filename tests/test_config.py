@@ -3,13 +3,7 @@ import io
 from contextlib import redirect_stdout
 
 from objprint import config, objprint
-
-
-class ElementNum:
-    def __init__(self):
-        self.first = 1
-        self.second = 2
-        self.third = 3
+from .objtest import ObjTest
 
 
 class TestConfig(unittest.TestCase):
@@ -18,7 +12,7 @@ class TestConfig(unittest.TestCase):
 
     def test_config_element(self):
         config(elements=2)
-        e = ElementNum()
+        e = ObjTest({"first": 1, "second": 2, "third": 3})
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(e)
             output = buf.getvalue()

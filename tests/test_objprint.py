@@ -3,88 +3,45 @@ import io
 from contextlib import redirect_stdout
 
 from objprint import objprint
-
-
-class B:
-    pass
-
-
-class ConfigContent:
-    def __init__(self):
-        self.name = "Alpha"
-
-
-class ConfigWidth:
-    def __init__(self):
-        self.lst = ['a', 'b']
-
-
-class ConfigWidth2:
-    def __init__(self):
-        self.lst = ["This", "is", "for", "testing"]
-
-
-class Element:
-    def __init__(self):
-        self.first = "east"
-        self.second = "west"
-        self.third = "north"
-
-
-class Depth1:
-    def __init__(self):
-        self.attri = Depth2()
-
-
-class Depth2:
-    def __init__(self):
-        self.attri = Element()
-
-
-class MultiDepth:
-    def __init__(self):
-        self.name = "depthTest"
-        self.first = Depth1()
-
-
-class WithConfig:
-    def __init__(self):
-        self.elem1 = 1
-        self.elem2 = 2
-        self.elem3 = 3
+from .objtest import ObjTest
 
 
 class TestObjprint(unittest.TestCase):
     def test_objprint(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(B(), indent=5, depth=2, width=60)
+            b = ObjTest({})
+            objprint(b, indent=5, depth=2, width=60)
             self.assertTrue(len(buf.getvalue()) > 0)
 
     def test_config_indent(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(ConfigContent(), indent=3)
+            obj = ObjTest({"name": "Alpha"})
+            objprint(obj, indent=3)
             output = buf.getvalue()
 
-        expectedString = "<ConfigContent\n   .name = 'Alpha'\n>\n"
+        expectedString = "<ObjTest\n   .name = 'Alpha'\n>\n"
         self.assertEqual(expectedString, output)
 
     def test_config_width(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(ConfigWidth(), width=10)
+            obj = ObjTest({"lst": ['a', 'b']})
+            objprint(obj, width=10)
             output = buf.getvalue()
-        lst = "<ConfigWidth\n  .lst = ['a', 'b']\n>\n"
+        lst = "<ObjTest\n  .lst = ['a', 'b']\n>\n"
         self.assertEqual(output, lst)
 
     def test_config_width_fail(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(ConfigWidth2(), width=5)
+            obj = ObjTest({"lst": ["This", "is", "for", "testing"]})
+            objprint(obj, width=5)
             output = buf.getvalue()
-        expected = "<ConfigWidth2\n  .lst = [\n    'This',\n    'is',\n    'for',\n    'testing'\n  ]\n>\n"
+        expected = "<ObjTest\n  .lst = [\n    'This',\n    'is',\n    'for',\n    'testing'\n  ]\n>\n"
         self.assertEqual(output, expected)
 
     def test_element(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(Element(), elements=2)
+            obj = ObjTest({"first": "east", "second": "west", "third": "north"})
+            objprint(obj, elements=2)
             output = buf.getvalue()
         self.assertIn("first", output)
         self.assertIn("second", output)
@@ -92,22 +49,31 @@ class TestObjprint(unittest.TestCase):
 
     def test_depth(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(MultiDepth(), depth=2)
+
+            e = ObjTest({"element": "east", "second": "west"})
+            depth2 = ObjTest({"attri": e, "inDepth2": "depth2"})
+            depth1 = ObjTest({"content": depth2, "inDepth1": "depth1"})
+            multiDepth = ObjTest({"name": "depthTest", "first": depth1})
+
+            objprint(multiDepth, depth=2)
             output = buf.getvalue()
-        self.assertIn("Depth1", output)
-        self.assertIn("Depth2", output)
-        self.assertNotIn("Element", output)
+        self.assertIn("depthTest", output)
+        self.assertIn("depth1", output)
+        self.assertNotIn("depth2", output)
+        self.assertNotIn("element", output)
 
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(WithConfig(), indent=1, include=['elem1', 'elem2'])
+            obj = ObjTest({"elem1": 1, "elem2": 2, "elem3": 3})
+            objprint(obj, indent=1, include=['elem1', 'elem2'])
             output = buf.getvalue()
-        expected = "<WithConfig\n .elem1 = 1,\n .elem2 = 2\n>\n"
+        expected = "<ObjTest\n .elem1 = 1,\n .elem2 = 2\n>\n"
         self.assertEqual(expected, output)
 
     def test_config_exclude(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(WithConfig(), indent=1, exclude=['elem3'])
+            obj = ObjTest({"elem1": 1, "elem2": 2, "elem3": 3})
+            objprint(obj, indent=1, exclude=['elem3'])
             output = buf.getvalue()
-        expected = "<WithConfig\n .elem1 = 1,\n .elem2 = 2\n>\n"
+        expected = "<ObjTest\n .elem1 = 1,\n .elem2 = 2\n>\n"
         self.assertEqual(expected, output)
