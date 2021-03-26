@@ -6,47 +6,7 @@ import io
 import unittest
 import random
 from objprint import objstr
-
-
-class C:
-    pass
-
-
-class Car(object):
-    def run(self):
-        print("my car can run!")
-
-
-class InExclude:
-    def __init__(self):
-        self.pos1 = "in"
-        self.pos2 = "out"
-        self.pos3 = "ex"
-
-
-class B:
-    def __init__(self):
-        self.name = "apple"
-        self.age = 10
-
-
-class Multiline:
-    def __init__(self):
-        self.lst = [1, 2, B()]
-
-
-class FullMatch:
-    def __init__(self):
-        self.give = "strGive"
-        self.curve = "strCurve"
-        self.head = "strHead"
-
-
-class MatchPlus:
-    def __init__(self):
-        self.xyz = "xyzVal"
-        self.xyzz = "xyzzVal"
-        self.xyzxz = "xyzxzVal"
+from .objtest import ObjTest
 
 
 class TestObjStr(unittest.TestCase):
@@ -83,42 +43,47 @@ class TestObjStr(unittest.TestCase):
         self.assertNotIn("\n", objstr(s))
 
     def test_get_ellipsis(self):
-        self.assertEqual("<C ... >", objstr(C(), 5))
+        obj = ObjTest({})
+        self.assertEqual("<ObjTest ... >", objstr(obj, 5))
 
     def test_None(self):
         self.assertEqual('None', objstr(None))
 
     def test_function_type(self):
-        self.assertEqual("<function run>", objstr(Car.run))
+        def run(self):
+            print("my car can run!")
+        obj = ObjTest({"brand": "a", "function": run})
+        self.assertEqual("<function run>", objstr(obj.function))
 
     def test_include(self):
-        t = InExclude()
+        t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
         output = objstr(t, include=['pos1'])
         self.assertIn("pos1", output)
         self.assertNotIn("pos2", output)
         self.assertNotIn("pos3", output)
 
     def test_exclude(self):
-        t = InExclude()
+        t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
         output = objstr(t, exclude=['pos2', 'pos3'])
         self.assertIn("pos1", output)
         self.assertNotIn("pos2", output)
         self.assertNotIn("pos3", output)
 
     def test_exclude_indent(self):
-        t = InExclude()
-        expected = "<InExclude\n    .pos1 = 'in'\n  >"
+        t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
+        expected = "<ObjTest\n    .pos1 = 'in'\n  >"
         self.assertEqual(objstr(t, indent_level=1, exclude=['pos2', 'pos3']), expected)
 
     def test_include_exclude_mix(self):
-        t = InExclude()
+        t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
         output = objstr(t, include=['pos1', 'pos2'], exclude=['pos2', 'pos3'])
         self.assertIn("pos1", output)
         self.assertNotIn("pos2", output)
         self.assertNotIn("pos3", output)
 
     def test_multiline(self):
-        m = Multiline()
+        n = ObjTest({"name": "Apple", "age": 10})
+        m = ObjTest({"lst": [1, 2, n]})
         actual = objstr(m)
         self.assertEqual(actual.count("\n"), 9)
 
@@ -128,14 +93,14 @@ class TestObjStr(unittest.TestCase):
         self.assertTrue(len(actual) > 0)
 
     def test_full_match(self):
-        f = FullMatch()
+        f = ObjTest({"give": "strGive", "curve": "strCurve", "head": "strHead"})
         actual = objstr(f, include=['.*e'])
         self.assertIn("give", actual)
         self.assertIn("curve", actual)
         self.assertNotIn("head", actual)
 
     def test_add_match(self):
-        t = MatchPlus()
+        t = ObjTest({"xyz": "xyzVal", "xyzz": "xyzzVal", "xyzxz": "xyzxzVal"})
         actual = objstr(t, include=['xyz+'])
         self.assertIn("xyz", actual)
         self.assertIn("xyzz", actual)
