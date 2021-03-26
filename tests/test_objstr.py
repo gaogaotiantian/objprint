@@ -52,7 +52,7 @@ class TestObjStr(unittest.TestCase):
     def test_function_type(self):
         def run(self):
             print("my car can run!")
-        obj = ObjTest({"brand": "a"}, function=run)
+        obj = ObjTest({"brand": "a", "function": run})
         self.assertEqual("<function run>", objstr(obj.function))
 
     def test_include(self):
