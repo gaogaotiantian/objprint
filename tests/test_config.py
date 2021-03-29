@@ -2,15 +2,14 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-import unittest
 import io
 from contextlib import redirect_stdout
 
 from objprint import config, objprint
-from .objtest import ObjTest
+from .objtest import ObjTest, ObjprintTestCase
 
 
-class TestConfig(unittest.TestCase):
+class TestConfig(ObjprintTestCase):
     def test_config_none_exist(self):
         self.assertRaises(TypeError, lambda: config(height=50))
 

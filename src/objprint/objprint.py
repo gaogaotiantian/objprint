@@ -4,6 +4,7 @@
 
 import re
 from types import FunctionType
+from .color_util import COLOR, set_color
 
 
 class ObjPrint:
@@ -12,6 +13,8 @@ class ObjPrint:
             "indent": 2,
             "depth": 3,
             "width": 80,
+            "color": True,
+            "label": [],
             "elements": None
         }
 
@@ -67,6 +70,15 @@ class ObjPrint:
         return self._get_pack_str(elems, type(obj), indent_level)
 
     def _get_custom_object_str(self, obj, indent_level, include=[], exclude=[]):
+
+        def _get_line(key):
+            if self.label and any(re.fullmatch(pattern, key) is not None for pattern in self.label):
+                return set_color(f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}", COLOR.YELLOW)
+            elif self.color:
+                return f"{set_color('.'+key, COLOR.GREEN)} = {self.objstr(obj.__dict__[key], indent_level + 1)}"
+            else:
+                return f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}"
+
         if hasattr(obj, "__dict__"):
             keys = []
             for key in obj.__dict__.keys():
@@ -77,7 +89,8 @@ class ObjPrint:
                     if any((re.fullmatch(pattern, key) is not None for pattern in exclude)):
                         continue
                 keys.append(key)
-            elems = (f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}" for key in sorted(keys))
+
+            elems = (_get_line(key) for key in sorted(keys))
         else:
             return str(obj)
 
@@ -114,7 +127,10 @@ class ObjPrint:
             indicator = self.indicator_map[obj_type]
             return indicator[0], indicator[1]
         else:
-            return f"<{obj_type.__name__}", ">"
+            if self.color:
+                return set_color('<' + obj_type.__name__, COLOR.CYAN), set_color(">", COLOR.CYAN)
+            else:
+                return f"<{obj_type.__name__}", ">"
 
     def _get_ellipsis(self, obj):
         header, footer = self._get_header_footer(type(obj))

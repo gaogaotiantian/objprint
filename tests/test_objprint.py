@@ -2,15 +2,14 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-import unittest
 import io
 from contextlib import redirect_stdout
 
 from objprint import objprint
-from .objtest import ObjTest
+from .objtest import ObjTest, ObjprintTestCase
 
 
-class TestObjprint(unittest.TestCase):
+class TestObjprint(ObjprintTestCase):
     def test_objprint(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             b = ObjTest({})

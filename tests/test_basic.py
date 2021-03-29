@@ -3,17 +3,17 @@
 
 
 import io
-import unittest
 import os
 from contextlib import redirect_stdout
 from objprint import objprint, objstr, config, install
+from .objtest import ObjprintTestCase
 
 
 class A:
     pass
 
 
-class TestBasic(unittest.TestCase):
+class TestBasic(ObjprintTestCase):
     def test_print(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             objprint(A())
