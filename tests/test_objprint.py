@@ -6,8 +6,8 @@ import io
 from contextlib import redirect_stdout
 
 from objprint import objprint
-from .objtest import ObjTest, ObjprintTestCase
 from objprint.color_util import COLOR
+from .objtest import ObjTest, ObjprintTestCase
 
 
 class TestObjprint(ObjprintTestCase):
