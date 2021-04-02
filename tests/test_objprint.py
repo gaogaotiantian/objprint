@@ -6,6 +6,7 @@ import io
 from contextlib import redirect_stdout
 
 from objprint import objprint
+from objprint.color_util import COLOR
 from .objtest import ObjTest, ObjprintTestCase
 
 
@@ -80,3 +81,36 @@ class TestObjprint(ObjprintTestCase):
             output = buf.getvalue()
         expected = "<ObjTest\n .elem1 = 1,\n .elem2 = 2\n>\n"
         self.assertEqual(expected, output)
+
+    def test_color_without_label(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({"name": "Lisa"})
+            objprint(obj, color=True)
+            output = buf.getvalue()
+        self.assertIn(COLOR.CYAN, output)
+        self.assertIn(COLOR.GREEN, output)
+        self.assertIn(COLOR.DEFAULT, output)
+
+    def test_color_with_label(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({"name": "Lisa", "age": 19})
+            objprint(obj, color=True, label=["age"])
+            output = buf.getvalue()
+        self.assertIn(COLOR.YELLOW, output)
+        self.assertIn(COLOR.DEFAULT, output)
+
+    def test_no_color(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({"Age": 10, "grade": 5})
+            objprint(obj, color=False)
+            output = buf.getvalue()
+        self.assertNotIn(COLOR.CYAN, output)
+        self.assertNotIn(COLOR.DEFAULT, output)
+
+    def test_label_only(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({"Age": 10, "grade": 5})
+            objprint(obj, color=False, label=['grade'])
+            output = buf.getvalue()
+        self.assertNotIn(COLOR.CYAN, output)
+        self.assertIn(COLOR.YELLOW, output)
