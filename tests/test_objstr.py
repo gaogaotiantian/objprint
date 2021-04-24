@@ -3,13 +3,12 @@
 
 
 import io
-import unittest
 import random
 from objprint import objstr
-from .objtest import ObjTest
+from .objtest import ObjTest, ObjprintTestCase
 
 
-class TestObjStr(unittest.TestCase):
+class TestObjStr(ObjprintTestCase):
     def test_list(self):
         lsts = (
             ([], "[]"),
