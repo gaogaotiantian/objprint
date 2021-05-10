@@ -72,12 +72,13 @@ class ObjPrint:
     def _get_custom_object_str(self, obj, indent_level, include=[], exclude=[]):
 
         def _get_line(key):
+            val = self.objstr(obj.__dict__[key], indent_level + 1, include=include, exclude=exclude)
             if self.label and any(re.fullmatch(pattern, key) is not None for pattern in self.label):
-                return set_color(f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}", COLOR.YELLOW)
+                return set_color(f".{key} = {val}", COLOR.YELLOW)
             elif self.color:
-                return f"{set_color('.'+key, COLOR.GREEN)} = {self.objstr(obj.__dict__[key], indent_level + 1)}"
+                return f"{set_color('.'+key, COLOR.GREEN)} = {val}"
             else:
-                return f".{key} = {self.objstr(obj.__dict__[key], indent_level + 1)}"
+                return f".{key} = {val}"
 
         if hasattr(obj, "__dict__"):
             keys = []
