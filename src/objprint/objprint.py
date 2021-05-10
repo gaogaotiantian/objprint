@@ -53,10 +53,10 @@ class ObjPrint:
             return self._get_ellipsis(obj)
 
         if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
-            elems = (f"{self.objstr(val, indent_level + 1)}" for val in obj)
+            elems = (f"{self.objstr(val, indent_level + 1, include=include, exclude=exclude)}" for val in obj)
         elif isinstance(obj, dict):
             elems = (
-                f"{self.objstr(key, indent_level + 1)}: {self.objstr(val, indent_level + 1)}"
+                f"{self.objstr(key, indent_level + 1)}: {self.objstr(val, indent_level + 1, include=include, exclude=exclude)}"
                 for key, val in sorted(obj.items())
             )
         else:
