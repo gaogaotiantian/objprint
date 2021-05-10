@@ -104,3 +104,10 @@ class TestObjStr(ObjprintTestCase):
         self.assertIn("xyz", actual)
         self.assertIn("xyzz", actual)
         self.assertNotIn("xyzxz", actual)
+
+    def test_nested_match(self):
+        child = ObjTest({"x": "x_val", "y": "y_val"})
+        parent = ObjTest({"x": "x_child_val", "y": "y_child_val", "child": child})
+        s = objstr(parent, exclude=["x"])
+        self.assertNotIn("x_child_val", s)
+        self.assertIn("y_child_val", s)
