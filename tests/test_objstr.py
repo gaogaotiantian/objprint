@@ -111,3 +111,9 @@ class TestObjStr(ObjprintTestCase):
         s = objstr(parent, exclude=["x"])
         self.assertNotIn("x_child_val", s)
         self.assertIn("y_child_val", s)
+        lst = [child, parent]
+        s = objstr(lst, exclude=["x"])
+        self.assertNotIn("x_child_val", s)
+        self.assertNotIn("x_val", s)
+        self.assertIn("y_child_val", s)
+        self.assertIn("y_val", s)
