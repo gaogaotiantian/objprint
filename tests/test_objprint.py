@@ -50,6 +50,14 @@ class TestObjprint(ObjprintTestCase):
         self.assertIn("first", output)
         self.assertIn("second", output)
         self.assertNotIn("third", output)
+        # Make sure when elements is large, it can also handle the case
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({"first": "east", "second": "west", "third": "north"})
+            objprint(obj, elements=10)
+            output = buf.getvalue()
+        self.assertIn("first", output)
+        self.assertIn("second", output)
+        self.assertIn("third", output)
 
     def test_depth(self):
         with io.StringIO() as buf, redirect_stdout(buf):
