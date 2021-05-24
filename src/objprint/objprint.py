@@ -154,7 +154,12 @@ class ObjPrint:
         if self.elements is None:
             elems = list(elems)
         else:
-            first_elems = [next(elems) for _ in range(self.elements)]
+            first_elems = []
+            try:
+                for _ in range(self.elements):
+                    first_elems.append(next(elems))
+            except StopIteration:
+                pass
             if next(elems, None) is not None:
                 first_elems.append("...")
             elems = first_elems
