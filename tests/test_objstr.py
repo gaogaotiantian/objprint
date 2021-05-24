@@ -60,6 +60,8 @@ class TestObjStr(ObjprintTestCase):
         self.assertIn("pos1", output)
         self.assertNotIn("pos2", output)
         self.assertNotIn("pos3", output)
+        with self.assertRaises(TypeError):
+            output = objstr(t, include="pos1")
 
     def test_exclude(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
@@ -67,6 +69,8 @@ class TestObjStr(ObjprintTestCase):
         self.assertIn("pos1", output)
         self.assertNotIn("pos2", output)
         self.assertNotIn("pos3", output)
+        with self.assertRaises(TypeError):
+            output = objstr(t, exclude="pos1")
 
     def test_exclude_indent(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})

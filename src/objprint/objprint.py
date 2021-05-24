@@ -48,6 +48,12 @@ class ObjPrint:
         elif isinstance(obj, FunctionType):
             return f"<function {obj.__name__}>"
 
+        if (not isinstance(exclude, list)) and (not isinstance(exclude, tuple)):
+            raise TypeError("exclude has to be list or tuple")
+
+        if (not isinstance(include, list)) and (not isinstance(include, tuple)):
+            raise TypeError("include has to be list or tuple")
+
         # Otherwise we may need to unpack it. Figure out if we should do that first
         if indent_level >= self.depth:
             return self._get_ellipsis(obj)
