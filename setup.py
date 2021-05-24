@@ -26,7 +26,7 @@ setuptools.setup(
     packages=setuptools.find_packages("src"),
     package_dir={"":"src"},
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
