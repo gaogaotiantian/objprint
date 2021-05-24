@@ -70,7 +70,11 @@ class ObjPrint:
 
             # If it has __str__ or __repr__ overloaded, honor that
             if obj.__class__.__str__ is not object.__str__ or obj.__class__.__repr__ is not object.__repr__:
-                return str(obj)
+                # Make sure we indent properly
+                s = str(obj)
+                lines = s.split("\n")
+                lines[1:] = [self.add_indent(line, indent_level) for line in lines[1:]]
+                return "\n".join(lines)
             return self._get_custom_object_str(obj, indent_level, include, exclude)
 
         return self._get_pack_str(elems, type(obj), indent_level)
