@@ -13,6 +13,9 @@ class TestConfig(ObjprintTestCase):
     def test_config_none_exist(self):
         self.assertRaises(ValueError, lambda: config(height=50))
 
+    def test_config_wrong_type(self):
+        self.assertRaises(TypeError, lambda: config(exclude=50))
+
     def test_config_element(self):
         config(elements=2)
         e = ObjTest({"first": 1, "second": 2, "third": 3})

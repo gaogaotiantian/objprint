@@ -122,3 +122,10 @@ class TestObjprint(ObjprintTestCase):
             output = buf.getvalue()
         self.assertNotIn(COLOR.CYAN, output)
         self.assertIn(COLOR.YELLOW, output)
+
+    def test_invalid(self):
+        with self.assertRaises(ValueError):
+            objprint({}, invalid="invalid")
+
+        with self.assertRaises(TypeError):
+            objprint({}, exclude="invalid")

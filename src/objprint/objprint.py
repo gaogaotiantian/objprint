@@ -71,12 +71,6 @@ class ObjPrint:
         elif isinstance(obj, FunctionType):
             return f"<function {obj.__name__}>"
 
-        if (not isinstance(cfg.exclude, list)) and (not isinstance(cfg.exclude, tuple)):
-            raise TypeError("exclude has to be list or tuple")
-
-        if (not isinstance(cfg.include, list)) and (not isinstance(cfg.include, tuple)):
-            raise TypeError("include has to be list or tuple")
-
         # Otherwise we may need to unpack it. Figure out if we should do that first
         if indent_level >= cfg.depth:
             return self._get_ellipsis(obj, cfg)
