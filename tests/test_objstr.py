@@ -43,7 +43,7 @@ class TestObjStr(ObjprintTestCase):
 
     def test_get_ellipsis(self):
         obj = ObjTest({})
-        self.assertEqual("<ObjTest ... >", objstr(obj, 5))
+        self.assertEqual("<ObjTest ... >", objstr(obj, depth=0))
 
     def test_None(self):
         self.assertEqual('None', objstr(None))
@@ -74,8 +74,8 @@ class TestObjStr(ObjprintTestCase):
 
     def test_exclude_indent(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
-        expected = "<ObjTest\n    .pos1 = 'in'\n  >"
-        self.assertEqual(objstr(t, indent_level=1, exclude=['pos2', 'pos3']), expected)
+        expected = "<ObjTest\n  .pos1 = 'in'\n>"
+        self.assertEqual(objstr(t, exclude=['pos2', 'pos3']), expected)
 
     def test_include_exclude_mix(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})

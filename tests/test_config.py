@@ -11,7 +11,10 @@ from .objtest import ObjTest, ObjprintTestCase
 
 class TestConfig(ObjprintTestCase):
     def test_config_none_exist(self):
-        self.assertRaises(TypeError, lambda: config(height=50))
+        self.assertRaises(ValueError, lambda: config(height=50))
+
+    def test_config_wrong_type(self):
+        self.assertRaises(TypeError, lambda: config(exclude=50))
 
     def test_config_element(self):
         config(elements=2)
@@ -22,4 +25,4 @@ class TestConfig(ObjprintTestCase):
         self.assertIn("first", output)
         self.assertIn("second", output)
         self.assertNotIn("third", output)
-        config(elements=None)
+        config(elements=-1)
