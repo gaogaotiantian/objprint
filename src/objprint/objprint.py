@@ -16,6 +16,7 @@ class _PrintConfig:
     elements = -1
     exclude = []
     include = []
+    honor_existing = True
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -86,7 +87,8 @@ class ObjPrint:
             # It's an object
 
             # If it has __str__ or __repr__ overloaded, honor that
-            if obj.__class__.__str__ is not object.__str__ or obj.__class__.__repr__ is not object.__repr__:
+            if cfg.honor_existing and \
+                    (obj.__class__.__str__ is not object.__str__ or obj.__class__.__repr__ is not object.__repr__):
                 # Make sure we indent properly
                 s = str(obj)
                 lines = s.split("\n")

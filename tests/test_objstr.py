@@ -121,3 +121,19 @@ class TestObjStr(ObjprintTestCase):
         self.assertNotIn("x_val", s)
         self.assertIn("y_child_val", s)
         self.assertIn("y_val", s)
+
+    def test_honor_existing(self):
+        class T:
+            def __init__(self):
+                self.abc = "xyz"
+
+            def __str__(self):
+                return "lol"
+
+        t = T()
+        s = objstr(t)
+        self.assertIn("lol", s)
+        s = objstr(t, honor_existing=False)
+        self.assertNotIn("lol", s)
+        self.assertIn("abc", s)
+        self.assertIn("xyz", s)
