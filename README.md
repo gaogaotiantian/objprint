@@ -122,10 +122,13 @@ that match exclusive check.
 
 ```objprint``` formats the output based on some configs
 
-* ``depth`` determines how deep ```objprint``` goes into nested data structures
-* ``indent`` determines the indentation
-* ``width`` determines the maximum width a data structure will be presented as a single line
-* ``elements`` determines the maximum number of elements that will be displayed 
+* ``config_name(default_value)`` - this config's explanation
+* ``depth(6)`` - how deep ```objprint``` goes into nested data structures
+* ``indent(2)`` - the indentation
+* ``width(80)`` - the maximum width a data structure will be presented as a single line
+* ``elements(-1)`` - the maximum number of elements that will be displayed, ``-1`` means no restriction
+* ``color(True)`` - whether to use colored scheme
+* ``honor_existing(True)`` - whether to use the existing user defined ``__repr__`` or ``__str__`` method
 
 You can set the configs globally using ``config`` function
 
