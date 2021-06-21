@@ -35,7 +35,7 @@ objprint(Player())
 ```
 
 ```
-<Player
+<Player 0x7fe44e1e3070
   .age = 18,
   .coins = {'bronze': 57, 'gold': 1, 'silver': 33},
   .items = ['axe', 'armor'],
@@ -103,7 +103,7 @@ objprint(Player(), exclude=[".*s"])
 ```
 
 ```
-<Player
+<Player 0x7fe44e1e3070
   .name = 'Alice',
   .age = 18,
   .position = <Position

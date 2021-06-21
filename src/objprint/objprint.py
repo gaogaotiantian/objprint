@@ -96,7 +96,7 @@ class ObjPrint:
                 return "\n".join(lines)
             return self._get_custom_object_str(obj, indent_level, cfg)
 
-        return self._get_pack_str(elems, type(obj), indent_level, cfg)
+        return self._get_pack_str(elems, obj, indent_level, cfg)
 
     def _get_custom_object_str(self, obj, indent_level, cfg):
 
@@ -124,7 +124,7 @@ class ObjPrint:
         else:
             return str(obj)
 
-        return self._get_pack_str(elems, type(obj), indent_level, cfg)
+        return self._get_pack_str(elems, obj, indent_level, cfg)
 
     def config(self, **kwargs):
         self._configs.set(**kwargs)
@@ -138,27 +138,28 @@ class ObjPrint:
             return " " * (indent_level * cfg.indent) + line
         return [" " * (indent_level * cfg.indent) + ll for ll in line]
 
-    def _get_header_footer(self, obj_type, cfg):
+    def _get_header_footer(self, obj, cfg):
+        obj_type = type(obj)
         if obj_type in self.indicator_map:
             indicator = self.indicator_map[obj_type]
             return indicator[0], indicator[1]
         else:
             if cfg.color:
-                return set_color('<' + obj_type.__name__, COLOR.CYAN), set_color(">", COLOR.CYAN)
+                return set_color(f"<{obj_type.__name__} {hex(id(obj))}", COLOR.CYAN), set_color(">", COLOR.CYAN)
             else:
                 return f"<{obj_type.__name__}", ">"
 
     def _get_ellipsis(self, obj, cfg):
-        header, footer = self._get_header_footer(type(obj), cfg)
+        header, footer = self._get_header_footer(obj, cfg)
         return f"{header} ... {footer}"
 
-    def _get_pack_str(self, elems, obj_type, indent_level, cfg):
+    def _get_pack_str(self, elems, obj, indent_level, cfg):
         """
         :param elems generator: generator of string elements to pack together
         :param obj_type type: object type
         :param indent_level int: current indent level
         """
-        header, footer = self._get_header_footer(obj_type, cfg)
+        header, footer = self._get_header_footer(obj, cfg)
 
         if cfg.elements == -1:
             elems = list(elems)
