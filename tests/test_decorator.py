@@ -6,7 +6,7 @@ import io
 from contextlib import redirect_stdout
 
 from objprint import add_objprint
-from objprint import objprint
+from objprint import op
 from .objtest import ObjprintTestCase
 
 
@@ -42,7 +42,7 @@ class TestDecorator(ObjprintTestCase):
 
         expected = []
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(NotDecorated())
+            op(NotDecorated())
             expect = buf.getvalue()
             split_line_nodec = expect.splitlines()
             expected = split_line_nodec[1:]
@@ -55,7 +55,7 @@ class TestDecorator(ObjprintTestCase):
             output = buf.getvalue()
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(DecoratedClass())
+            op(DecoratedClass())
             expected = buf.getvalue()
 
         self.assertEqual(expected, output)
@@ -66,7 +66,7 @@ class TestDecorator(ObjprintTestCase):
             output = buf.getvalue()
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(TestWrapper(), include=['color1', 'color2'])
+            op(TestWrapper(), include=['color1', 'color2'])
             expected = buf.getvalue()
 
         self.assertEqual(output, expected)

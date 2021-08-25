@@ -11,12 +11,12 @@ pip install objprint
 
 ## Usage
 
-### objprint
+### op
 
-Use ```objprint()``` to print objects.
+Use ```op()``` (or ```objprint()```) to print objects.
 
 ```python
-from objprint import objprint
+from objprint import op
 
 class Position:
     def __init__(self, x, y):
@@ -31,7 +31,7 @@ class Player:
         self.coins = {"gold": 1, "silver": 33, "bronze": 57}
         self.position = Position(3, 5)
 
-objprint(Player())
+op(Player())
 ```
 
 ```
@@ -90,7 +90,7 @@ You can include/exclude attributes using regular expression so ```objprint``` wi
 out the attributes you are interested in.
 
 ```python
-objprint(Player(), include=["name"])
+op(Player(), include=["name"])
 ```
 ```
 <Player
@@ -99,7 +99,7 @@ objprint(Player(), include=["name"])
 ```
 
 ```python
-objprint(Player(), exclude=[".*s"])
+op(Player(), exclude=[".*s"])
 ```
 
 ```
@@ -141,25 +141,25 @@ config(indent=4)
 Or you can do a one time config by passing the arguments into ``objprint`` function
 
 ```python
-from objprint import objprint
+from objprint import op
 
-objprint(var, indent=4)
+op(var, indent=4)
 ```
 
 ### install
 
-Maybe you don't want to import ``objprint`` in every single file that you want to use. You can
+Maybe you don't want to import ``op`` in every single file that you want to use. You can
 use ``install`` to make it globally accessible
 
 ```python
 from objprint import install
 
-# Now you can use objprint() in any file
+# Now you can use op() in any file
 install()
 
 # You can specify a name for objprint()
-install("op")
-op(my_object)
+install("my_print")
+my_print(my_object)
 ```
 
 ## Bugs/Requests

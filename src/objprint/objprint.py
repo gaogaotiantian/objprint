@@ -129,7 +129,7 @@ class ObjPrint:
     def config(self, **kwargs):
         self._configs.set(**kwargs)
 
-    def install(self, name="objprint"):
+    def install(self, name="op"):
         import builtins
         builtins.__dict__[name] = self.objprint
 

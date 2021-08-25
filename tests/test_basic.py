@@ -5,7 +5,7 @@
 import io
 import os
 from contextlib import redirect_stdout
-from objprint import objprint, objstr, config, install
+from objprint import op, objstr, config, install
 from .objtest import ObjprintTestCase
 
 
@@ -16,20 +16,20 @@ class A:
 class TestBasic(ObjprintTestCase):
     def test_print(self):
         with io.StringIO() as buf, redirect_stdout(buf):
-            objprint(A())
+            op(A())
             self.assertTrue(len(buf.getvalue()) > 0)
 
     def test_print_to_file(self):
         fname = "./test.txt"
         with open(fname, "w") as f:
-            objprint(A(), file=f)
+            op(A(), file=f)
         with open(fname, "r") as f:
             self.assertGreater(len(f.read()), 0)
         os.remove(fname)
 
     def test_print_to_buffer(self):
         with io.StringIO() as buf:
-            objprint(A(), file=buf)
+            op(A(), file=buf)
             self.assertGreater(len(buf.getvalue()), 0)
 
     def test_str(self):
@@ -41,7 +41,7 @@ class TestBasic(ObjprintTestCase):
         config(indent=2)
 
     def test_install(self):
-        install("my_objprint")
+        install("my_op")
         with io.StringIO() as buf, redirect_stdout(buf):
-            my_objprint(A())  # noqa: F821
+            my_op(A())  # noqa: F821
             self.assertTrue(len(buf.getvalue()) > 0)
