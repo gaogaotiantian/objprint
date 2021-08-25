@@ -8,14 +8,14 @@ from .objprint import ObjPrint
 from .decorator import add_objprint
 
 _objprint = ObjPrint()
-objprint = _objprint.objprint
+op = objprint = _objprint.objprint
 objstr = _objprint.objstr
 config = _objprint.config
 install = _objprint.install
 
 
 __all__ = [
-    "objprint",
+    "op",
     "objstr",
     "config",
     "add_objprint",
