@@ -47,6 +47,17 @@ op(Player())
 >
 ```
 
+You can print multiple objects just like print, except ``op`` will print them in separate lines
+
+```python
+op([1, 2], {'a': 1})
+```
+
+```
+[1, 2]
+{'a': 1}
+```
+
 ### add_objprint
 
 If you want to use ```print()``` to print your object, you can also use the class decorator
