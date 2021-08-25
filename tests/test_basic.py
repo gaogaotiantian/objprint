@@ -19,6 +19,11 @@ class TestBasic(ObjprintTestCase):
             op(A())
             self.assertTrue(len(buf.getvalue()) > 0)
 
+    def test_print_multiple(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(A(), A())
+            self.assertTrue(len(buf.getvalue()) > 0)
+
     def test_print_to_file(self):
         fname = "./test.txt"
         with open(fname, "w") as f:

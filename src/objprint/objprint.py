@@ -55,8 +55,9 @@ class ObjPrint:
         }
         self._sys_print = print
 
-    def objprint(self, obj, file=None, **kwargs):
-        self._sys_print(self.objstr(obj, **kwargs), file=file)
+    def objprint(self, *objs, file=None, **kwargs):
+        for obj in objs:
+            self._sys_print(self.objstr(obj, **kwargs), file=file)
 
     def objstr(self, obj, **kwargs):
         return self._objstr(obj, indent_level=0, cfg=self._configs.overwrite(**kwargs))

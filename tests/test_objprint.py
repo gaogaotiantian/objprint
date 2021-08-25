@@ -17,6 +17,14 @@ class TestObjprint(ObjprintTestCase):
             op(b, indent=5, depth=2, width=60)
             self.assertTrue(len(buf.getvalue()) > 0)
 
+    def test_multiple(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(1, 2)
+            output = buf.getvalue()
+
+        expectedString = "1\n2\n"
+        self.assertEqual(expectedString, output)
+
     def test_config_indent(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"name": "Alpha"})
