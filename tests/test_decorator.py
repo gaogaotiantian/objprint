@@ -2,8 +2,9 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-import io
 from contextlib import redirect_stdout
+import json
+import io
 
 from objprint import add_objprint
 from objprint import op
@@ -29,6 +30,19 @@ class TestWrapper:
         self.color1 = "red"
         self.color2 = "blue"
         self.color3 = "yellow"
+
+
+@add_objprint(format="json")
+class DecoratedJsonCls:
+    def __init__(self):
+        self.name = "Lisa"
+        self.age = 19
+
+@add_objprint(format="json", indent=2)
+class DecoratedIndentJsonCls:
+    def __init__(self):
+        self.name = "Lisa"
+        self.age = 19
 
 
 class TestDecorator(ObjprintTestCase):
@@ -69,4 +83,17 @@ class TestDecorator(ObjprintTestCase):
             op(TestWrapper(), include=['color1', 'color2'])
             expected = buf.getvalue()
 
+        self.assertEqual(output, expected)
+
+    def test_json(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            print(DecoratedJsonCls())
+            output = buf.getvalue()
+        expected = json.dumps({".type": "DecoratedJsonCls", "name": "Lisa", "age": 19}) + "\n"
+        self.assertEqual(output, expected)
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            print(DecoratedIndentJsonCls())
+            output = buf.getvalue()
+        expected = json.dumps({".type": "DecoratedIndentJsonCls", "name": "Lisa", "age": 19}, indent=2) + "\n"
         self.assertEqual(output, expected)

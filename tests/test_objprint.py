@@ -2,8 +2,9 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-import io
 from contextlib import redirect_stdout
+import io
+import json
 
 from objprint import op
 from objprint.color_util import COLOR
@@ -24,6 +25,19 @@ class TestObjprint(ObjprintTestCase):
 
         expectedString = "1\n2\n"
         self.assertEqual(expectedString, output)
+
+    def test_json(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            b = ObjTest({"name": "Lisa", "age": 19})
+            op(b, format="json")
+            output = buf.getvalue()
+        self.assertEqual(output, json.dumps({".type": "ObjTest", "name": "Lisa", "age": 19}) + "\n")
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            b = ObjTest({"name": "Lisa", "age": 19})
+            op(b, format="json", indent=2)
+            output = buf.getvalue()
+        self.assertEqual(output, json.dumps({".type": "ObjTest", "name": "Lisa", "age": 19}, indent=2) + "\n")
 
     def test_config_indent(self):
         with io.StringIO() as buf, redirect_stdout(buf):
