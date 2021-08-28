@@ -2,6 +2,7 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+import json
 import re
 from types import FunctionType
 from .color_util import COLOR, set_color
@@ -55,9 +56,13 @@ class ObjPrint:
         }
         self._sys_print = print
 
-    def objprint(self, *objs, file=None, **kwargs):
-        for obj in objs:
-            self._sys_print(self.objstr(obj, **kwargs), file=file)
+    def objprint(self, *objs, file=None, format="string", **kwargs):
+        if format == "json":
+            for obj in objs:
+                self._sys_print(json.dumps(self.objjson(obj), **kwargs))
+        else:
+            for obj in objs:
+                self._sys_print(self.objstr(obj, **kwargs), file=file)
 
     def objstr(self, obj, **kwargs):
         return self._objstr(obj, indent_level=0, cfg=self._configs.overwrite(**kwargs))
@@ -98,6 +103,36 @@ class ObjPrint:
             return self._get_custom_object_str(obj, indent_level, cfg)
 
         return self._get_pack_str(elems, obj, indent_level, cfg)
+
+    def objjson(self, obj):
+        return self._objjson(obj, set())
+
+    def _objjson(self, obj, memo):
+        """
+        return a jsonifiable object from obj
+        """
+        if isinstance(obj, (str, int, float)) or obj is None:
+            return obj
+
+        if id(obj) in memo:
+            raise ValueError("Can't jsonify a recursive object")
+
+        memo.add(id(obj))
+
+        if isinstance(obj, (list, tuple)):
+            return [self._objjson(elem, memo.copy()) for elem in obj]
+
+        if isinstance(obj, dict):
+            return {key: self._objjson(val, memo.copy()) for key, val in obj.items()}
+
+        # For generic object
+        ret = {".type": type(obj).__name__}
+
+        if hasattr(obj, "__dict__"):
+            for key, val in obj.__dict__.items():
+                ret[key] = self._objjson(val, memo.copy())
+
+        return ret
 
     def _get_custom_object_str(self, obj, indent_level, cfg):
 

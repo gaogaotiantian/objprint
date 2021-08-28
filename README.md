@@ -95,6 +95,56 @@ from objprint import objstr
 s = objstr(my_object)
 ```
 
+### objjson
+
+``objprint`` supports print objects to json to make it easier to serialze an object.
+
+``objjson`` returns a jsonifiable object that can be dumped with ``json.dumps``
+
+```python
+from objprint import objjson
+
+json_obj = objjson(Player())
+
+print(json.dumps(json_obj, indent=2))
+```
+
+```
+{
+  ".type": "Player",
+  "name": "Alice",
+  "age": 18,
+  "items": [
+    "axe",
+    "armor"
+  ],
+  "coins": {
+    "gold": 1,
+    "silver": 33,
+    "bronze": 57
+  },
+  "position": {
+    ".type": "Position",
+    "x": 3,
+    "y": 5
+  }
+}
+```
+
+You can use ``op`` to print in json format directly with ``format="json"``. You can pass in argument for ```json.dumps```
+
+```python
+op(Player(), format="json", indent=2)
+```
+
+``add_objprint`` also works with ``format="json``"
+
+```python
+@add_objprint(format="json", indent=2)
+class Player:
+    pass
+```
+
 ### include/exclude attributes
 
 You can include/exclude attributes using regular expression so ```objprint``` will only print

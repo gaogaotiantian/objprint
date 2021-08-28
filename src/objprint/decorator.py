@@ -2,12 +2,18 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-def add_objprint(orig_class=None, **kwargs):
+def add_objprint(orig_class=None, format="string", **kwargs):
 
     from . import _objprint
 
-    def __str__(self):
-        return _objprint._get_custom_object_str(self, indent_level=0, cfg=_objprint._configs.overwrite(**kwargs))
+    if format == "json":
+        import json
+
+        def __str__(self):
+            return json.dumps(_objprint.objjson(self), **kwargs)
+    else:
+        def __str__(self):
+            return _objprint._get_custom_object_str(self, indent_level=0, cfg=_objprint._configs.overwrite(**kwargs))
 
     if orig_class is None:
         def wrapper(cls):
