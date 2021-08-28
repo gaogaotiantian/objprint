@@ -1,7 +1,7 @@
 # Licensed under the Apache License: http://www.apache.org/licenses/LICENSE-2.0
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 
 from .objprint import ObjPrint
