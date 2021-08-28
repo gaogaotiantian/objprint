@@ -2,7 +2,6 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-import json
 import re
 from types import FunctionType
 from .color_util import COLOR, set_color
