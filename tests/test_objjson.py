@@ -7,7 +7,7 @@ from objprint import objjson
 from .objtest import ObjTest, ObjprintTestCase
 
 
-class TestObjStr(ObjprintTestCase):
+class TestObjJson(ObjprintTestCase):
     def test_list(self):
         lsts = (
             [],

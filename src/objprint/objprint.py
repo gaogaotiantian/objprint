@@ -100,9 +100,9 @@ class ObjPrint:
         return self._get_pack_str(elems, obj, indent_level, cfg)
 
     def objjson(self, obj):
-        return self._objjson(obj)
+        return self._objjson(obj, set())
 
-    def _objjson(self, obj, memo=set()):
+    def _objjson(self, obj, memo):
         """
         return a jsonifiable object from obj
         """

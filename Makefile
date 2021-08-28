@@ -29,4 +29,4 @@ clean:
 	rm -rf dist
 	rm -rf objprint.egg-info 
 	rm -rf src/objprint.egg-info
-	pip uninstall -y objprint 
+	pip uninstall -y objprint || true
