@@ -38,6 +38,7 @@ class DecoratedJsonCls:
         self.name = "Lisa"
         self.age = 19
 
+
 @add_objprint(format="json", indent=2)
 class DecoratedIndentJsonCls:
     def __init__(self):
