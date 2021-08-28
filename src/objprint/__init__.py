@@ -10,6 +10,7 @@ from .decorator import add_objprint
 _objprint = ObjPrint()
 op = objprint = _objprint.objprint
 objstr = _objprint.objstr
+objjson = _objprint.objjson
 config = _objprint.config
 install = _objprint.install
 
@@ -17,6 +18,7 @@ install = _objprint.install
 __all__ = [
     "op",
     "objstr",
+    "objjson",
     "config",
     "add_objprint",
     "install"
