@@ -61,10 +61,16 @@ class ObjPrint:
             for obj in objs:
                 self._sys_print(json.dumps(self.objjson(obj), **kwargs))
         else:
+            # Force color with cfg as if color is not in cfg, objstr will default to False
+            cfg = self._configs.overwrite(**kwargs)
+            kwargs["color"] = cfg.color
             for obj in objs:
                 self._sys_print(self.objstr(obj, **kwargs), file=file)
 
     def objstr(self, obj, **kwargs):
+        # If no color option is specified, don't use color
+        if "color" not in kwargs:
+            kwargs["color"] = False
         return self._objstr(obj, indent_level=0, cfg=self._configs.overwrite(**kwargs))
 
     def _objstr(self, obj, indent_level, cfg):

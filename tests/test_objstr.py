@@ -4,7 +4,7 @@
 
 import io
 import random
-from objprint import objstr
+from objprint import objstr, config
 from .objtest import ObjTest, ObjprintTestCase
 
 
@@ -137,3 +137,13 @@ class TestObjStr(ObjprintTestCase):
         self.assertNotIn("lol", s)
         self.assertIn("abc", s)
         self.assertIn("xyz", s)
+
+    def test_color(self):
+        # objstr should return string without color
+        # even if the global config sets color to True
+        config(color=True)
+        s = objstr(ObjTest({"a": 1}))
+        self.assertNotIn("\033", s)
+        s = objstr(ObjTest({"a": 1}), color=True)
+        self.assertIn("\033", s)
+        config(color=False)
