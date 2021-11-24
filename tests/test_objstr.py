@@ -147,3 +147,13 @@ class TestObjStr(ObjprintTestCase):
         s = objstr(ObjTest({"a": 1}), color=True)
         self.assertIn("\033", s)
         config(color=False)
+
+    def test_recursion(self):
+        t1 = ObjTest({})
+        t2 = ObjTest({"t1": t1})
+        t2.t1.t2 = t2
+        s = objstr(t2)
+        self.assertIn("...", s)
+        self.assertEqual(s.count("t2"), 1)
+        s = objstr(t2, skip_recursion=False, depth=6)
+        self.assertEqual(s.count("t2"), 3)

@@ -13,7 +13,9 @@ def add_objprint(orig_class=None, format="string", **kwargs):
             return json.dumps(_objprint.objjson(self), **kwargs)
     else:
         def __str__(self):
-            return _objprint._get_custom_object_str(self, indent_level=0, cfg=_objprint._configs.overwrite(**kwargs))
+            cfg = _objprint._configs.overwrite(**kwargs)
+            memo = set() if cfg.skip_recursion else None
+            return _objprint._get_custom_object_str(self, memo, indent_level=0, cfg=cfg)
 
     if orig_class is None:
         def wrapper(cls):

@@ -10,13 +10,14 @@ from .color_util import COLOR, set_color
 
 class _PrintConfig:
     indent = 2
-    depth = 6
+    depth = 100
     width = 80
     color = True
     label = []
     elements = -1
     exclude = []
     include = []
+    skip_recursion = True
     honor_existing = True
 
     def __init__(self, **kwargs):
@@ -71,9 +72,11 @@ class ObjPrint:
         # If no color option is specified, don't use color
         if "color" not in kwargs:
             kwargs["color"] = False
-        return self._objstr(obj, indent_level=0, cfg=self._configs.overwrite(**kwargs))
+        cfg = self._configs.overwrite(**kwargs)
+        memo = set() if cfg.skip_recursion else None
+        return self._objstr(obj, memo, indent_level=0, cfg=cfg)
 
-    def _objstr(self, obj, indent_level, cfg):
+    def _objstr(self, obj, memo, indent_level, cfg):
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
@@ -85,14 +88,19 @@ class ObjPrint:
             return f"<function {obj.__name__}>"
 
         # Otherwise we may need to unpack it. Figure out if we should do that first
-        if indent_level >= cfg.depth:
+        if (memo is not None and id(obj) in memo) or \
+                (cfg.depth is not None and indent_level >= cfg.depth):
             return self._get_ellipsis(obj, cfg)
 
+        if memo is not None:
+            memo = memo.copy()
+            memo.add(id(obj))
+
         if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
-            elems = (f"{self._objstr(val, indent_level + 1, cfg)}" for val in obj)
+            elems = (f"{self._objstr(val, memo, indent_level + 1, cfg)}" for val in obj)
         elif isinstance(obj, dict):
             elems = (
-                f"{self._objstr(key, indent_level + 1, cfg)}: {self._objstr(val, indent_level + 1, cfg)}"
+                f"{self._objstr(key, None, indent_level + 1, cfg)}: {self._objstr(val, memo, indent_level + 1, cfg)}"
                 for key, val in sorted(obj.items())
             )
         else:
@@ -106,7 +114,7 @@ class ObjPrint:
                 lines = s.split("\n")
                 lines[1:] = [self.add_indent(line, indent_level, cfg) for line in lines[1:]]
                 return "\n".join(lines)
-            return self._get_custom_object_str(obj, indent_level, cfg)
+            return self._get_custom_object_str(obj, memo, indent_level, cfg)
 
         return self._get_pack_str(elems, obj, indent_level, cfg)
 
@@ -140,10 +148,10 @@ class ObjPrint:
 
         return ret
 
-    def _get_custom_object_str(self, obj, indent_level, cfg):
+    def _get_custom_object_str(self, obj, memo, indent_level, cfg):
 
         def _get_line(key):
-            val = self._objstr(obj.__dict__[key], indent_level + 1, cfg)
+            val = self._objstr(obj.__dict__[key], memo, indent_level + 1, cfg)
             if cfg.label and any(re.fullmatch(pattern, key) is not None for pattern in cfg.label):
                 return set_color(f".{key} = {val}", COLOR.YELLOW)
             elif cfg.color:
