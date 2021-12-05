@@ -95,6 +95,31 @@ from objprint import objstr
 s = objstr(my_object)
 ```
 
+### print more
+
+There are some optional information you can print with [config](###config).
+
+#### "Public" Methods
+
+There are no REAL public methods in python, here I simply meant you can print methods that do not start with ``__`` as there will be
+a lot of default magic methods and you don't want that.
+
+```python
+class Player:
+    def attack(self, opponent):
+        pass
+
+op(Player(), print_methods=True)
+```
+
+```
+<Player 0x7fe44e1e3070
+  def attack(opponent)
+>
+```
+
+As you can see, it will also print the method signature(without ``self`` argument).
+
 ### objjson
 
 ``objprint`` supports print objects to json to make it easier to serialze an object.
