@@ -58,6 +58,24 @@ op([1, 2], {'a': 1})
 {'a': 1}
 ```
 
+``op`` will return the same object it prints, so you can do something like this
+
+```python
+a = MyObject()
+# print the args inline with minumum change
+function_using_object(op(a))
+# the difference is more significant with complex expressions
+# original: function_using_object(a.f() + a.g())
+function_using_object(op(a.f() + a.g()))
+```
+
+It works on multiple objects as well, as it returns a tuple, you need to unpack it for functions
+
+```python
+a = MyObject()
+function_using_object(*op(a.f(), a.g()))
+```
+
 ### add_objprint
 
 If you want to use ```print()``` to print your object, you can also use the class decorator
