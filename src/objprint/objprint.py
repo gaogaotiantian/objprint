@@ -218,7 +218,7 @@ class ObjPrint:
             if cfg.color:
                 return set_color(f"<{obj_type.__name__} {hex(id(obj))}", COLOR.CYAN), set_color(">", COLOR.CYAN)
             else:
-                return f"<{obj_type.__name__}", ">"
+                return f"<{obj_type.__name__} {hex(id(obj))}", ">"
 
     def _get_ellipsis(self, obj, cfg):
         header, footer = self._get_header_footer(obj, cfg)

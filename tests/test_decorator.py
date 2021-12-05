@@ -65,23 +65,25 @@ class TestDecorator(ObjprintTestCase):
         self.assertEqual(expected, actual)
 
     def test_single_class(self):
+        obj = DecoratedClass()
         with io.StringIO() as buf, redirect_stdout(buf):
-            print(DecoratedClass())
+            print(obj)
             output = buf.getvalue()
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            op(DecoratedClass())
+            op(obj)
             expected = buf.getvalue()
 
         self.assertEqual(expected, output)
 
     def test_wrapper(self):
+        obj = TestWrapper()
         with io.StringIO() as buf, redirect_stdout(buf):
-            print(TestWrapper())
+            print(obj)
             output = buf.getvalue()
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            op(TestWrapper(), include=['color1', 'color2'])
+            op(obj, include=['color1', 'color2'])
             expected = buf.getvalue()
 
         self.assertEqual(output, expected)

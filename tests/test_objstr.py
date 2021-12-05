@@ -43,7 +43,7 @@ class TestObjStr(ObjprintTestCase):
 
     def test_get_ellipsis(self):
         obj = ObjTest({})
-        self.assertEqual("<ObjTest ... >", objstr(obj, depth=0))
+        self.assertRegex(objstr(obj, depth=0), r"<ObjTest 0x[0-9a-fA-F]* ... >")
 
     def test_None(self):
         self.assertEqual('None', objstr(None))
@@ -53,6 +53,12 @@ class TestObjStr(ObjprintTestCase):
             print("my car can run!")
         obj = ObjTest({"brand": "a", "function": run})
         self.assertEqual("<function run>", objstr(obj.function))
+
+    def test_id(self):
+        obj = ObjTest({})
+        obj_id = id(obj)
+        self.assertIn(hex(obj_id), objstr(obj, color=True))
+        self.assertIn(hex(obj_id), objstr(obj, color=False))
 
     def test_include(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
@@ -74,8 +80,8 @@ class TestObjStr(ObjprintTestCase):
 
     def test_exclude_indent(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
-        expected = "<ObjTest\n  .pos1 = 'in'\n>"
-        self.assertEqual(objstr(t, exclude=['pos2', 'pos3']), expected)
+        expected = r"<ObjTest 0x[0-9a-fA-F]*\n  .pos1 = 'in'\n>"
+        self.assertRegex(objstr(t, exclude=['pos2', 'pos3']), expected)
 
     def test_include_exclude_mix(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})

@@ -5,6 +5,7 @@
 from contextlib import redirect_stdout
 import io
 import json
+import re
 
 from objprint import op
 from objprint.color_util import COLOR
@@ -45,24 +46,24 @@ class TestObjprint(ObjprintTestCase):
             op(obj, indent=3)
             output = buf.getvalue()
 
-        expectedString = "<ObjTest\n   .name = 'Alpha'\n>\n"
-        self.assertEqual(expectedString, output)
+        expectedString = r"<ObjTest 0x[0-9a-fA-F]*\n   .name = 'Alpha'\n>\n"
+        self.assertRegex(output, expectedString)
 
     def test_config_width(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"lst": ['a', 'b']})
             op(obj, width=10)
             output = buf.getvalue()
-        lst = "<ObjTest\n  .lst = ['a', 'b']\n>\n"
-        self.assertEqual(output, lst)
+        lst = r"<ObjTest 0x[0-9a-fA-F]*\n  .lst = \['a', 'b'\]\n>\n"
+        self.assertRegex(output, lst)
 
     def test_config_width_fail(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"lst": ["This", "is", "for", "testing"]})
             op(obj, width=5)
             output = buf.getvalue()
-        expected = "<ObjTest\n  .lst = [\n    'This',\n    'is',\n    'for',\n    'testing'\n  ]\n>\n"
-        self.assertEqual(output, expected)
+        expected = r"<ObjTest .*\n  .lst = \[\n    'This',\n    'is',\n    'for',\n    'testing'\n  \]\n>\n"
+        self.assertRegex(output, re.compile(expected, re.DOTALL))
 
     def test_element(self):
         with io.StringIO() as buf, redirect_stdout(buf):
@@ -110,24 +111,24 @@ class TestObjprint(ObjprintTestCase):
             op(obj, print_methods=True)
             output = buf.getvalue()
 
-        expected = "<ObjWithMethods\n  def obj_method(method_arg, **kwargs)\n>\n"
-        self.assertEqual(output, expected)
+        expected = r"<ObjWithMethods 0x[0-9a-fA-F]*\n  def obj_method\(method_arg, \*\*kwargs\)\n>\n"
+        self.assertRegex(output, expected)
 
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"elem1": 1, "elem2": 2, "elem3": 3})
             op(obj, indent=1, include=['elem1', 'elem2'])
             output = buf.getvalue()
-        expected = "<ObjTest\n .elem1 = 1,\n .elem2 = 2\n>\n"
-        self.assertEqual(expected, output)
+        expected = r"<ObjTest 0x[0-9a-fA-F]*\n .elem1 = 1,\n .elem2 = 2\n>\n"
+        self.assertRegex(output, expected)
 
     def test_config_exclude(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"elem1": 1, "elem2": 2, "elem3": 3})
             op(obj, indent=1, exclude=['elem3'])
             output = buf.getvalue()
-        expected = "<ObjTest\n .elem1 = 1,\n .elem2 = 2\n>\n"
-        self.assertEqual(expected, output)
+        expected = r"<ObjTest 0x[0-9a-fA-F]*\n .elem1 = 1,\n .elem2 = 2\n>\n"
+        self.assertRegex(output, expected)
 
     def test_color_without_label(self):
         with io.StringIO() as buf, redirect_stdout(buf):
