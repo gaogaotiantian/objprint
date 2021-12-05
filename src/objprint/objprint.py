@@ -19,6 +19,7 @@ class _PrintConfig:
     elements = -1
     exclude = []
     include = []
+    line_number = False
     print_methods = False
     skip_recursion = True
     honor_existing = True
@@ -61,6 +62,7 @@ class ObjPrint:
         self._sys_print = print
 
     def objprint(self, *objs, file=None, format="string", **kwargs):
+        call_frame = inspect.currentframe().f_back
         if format == "json":
             for obj in objs:
                 self._sys_print(json.dumps(self.objjson(obj), **kwargs))
@@ -69,19 +71,24 @@ class ObjPrint:
             cfg = self._configs.overwrite(**kwargs)
             kwargs["color"] = cfg.color
             for obj in objs:
-                self._sys_print(self.objstr(obj, **kwargs), file=file)
+                self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
 
         if len(objs) == 1:
             return objs[0]
         return objs
 
-    def objstr(self, obj, **kwargs):
+    def objstr(self, obj, call_frame=None, **kwargs):
+        if call_frame is None:
+            call_frame = inspect.currentframe().f_back
         # If no color option is specified, don't use color
         if "color" not in kwargs:
             kwargs["color"] = False
         cfg = self._configs.overwrite(**kwargs)
         memo = set() if cfg.skip_recursion else None
-        return self._objstr(obj, memo, indent_level=0, cfg=cfg)
+        if cfg.line_number:
+            return self._get_line_number_str(call_frame, cfg=cfg) + self._objstr(obj, memo, indent_level=0, cfg=cfg)
+        else:
+            return self._objstr(obj, memo, indent_level=0, cfg=cfg)
 
     def _objstr(self, obj, memo, indent_level, cfg):
         # If it's builtin type, return it directly
@@ -200,6 +207,13 @@ class ObjPrint:
         )
 
         return self._get_pack_str(elems, obj, indent_level, cfg)
+
+    def _get_line_number_str(self, curr_frame, cfg):
+        curr_code = curr_frame.f_code
+        if cfg.color:
+            return f"{set_color(curr_code.co_name, COLOR.GREEN)} ({curr_code.co_filename}:{curr_frame.f_lineno})\n"
+        else:
+            return f"{curr_code.co_name} ({curr_code.co_filename}:{curr_frame.f_lineno})\n"
 
     def config(self, **kwargs):
         self._configs.set(**kwargs)

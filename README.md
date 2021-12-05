@@ -232,6 +232,7 @@ that match exclusive check.
 * ``width(80)`` - the maximum width a data structure will be presented as a single line
 * ``elements(-1)`` - the maximum number of elements that will be displayed, ``-1`` means no restriction
 * ``color(True)`` - whether to use colored scheme
+* ``line_number(False)`` - whether to print the ``function (filename:line_number)`` before printing the object
 * ``skip_recursion(True)`` - whether skip printing recursive data, which would cause infinite recursion without ``depth`` constraint
 * ``honor_existing(True)`` - whether to use the existing user defined ``__repr__`` or ``__str__`` method
 

@@ -125,6 +125,16 @@ class TestObjprint(ObjprintTestCase):
         expected = r"<ObjWithMethods 0x[0-9a-fA-F]*\n  def obj_method\(method_arg, \*\*kwargs\)\n>\n"
         self.assertRegex(output, expected)
 
+    def test_line_number(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({})
+            op(obj, line_number=True, color=False)
+            output = buf.getvalue()
+
+        first_line = output.split("\n")[0]
+        self.assertIn("test_line_number", first_line)
+        self.assertIn("test_objprint", first_line)
+
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"elem1": 1, "elem2": 2, "elem3": 3})
@@ -170,6 +180,17 @@ class TestObjprint(ObjprintTestCase):
 
         self.assertIn(COLOR.MAGENTA, output)
         self.assertIn("obj_method", output)
+
+    def test_color_with_line_number(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({})
+            op(obj, line_number=True, color=True)
+            output = buf.getvalue()
+
+        first_line = output.split("\n")[0]
+        self.assertIn("test_color_with_line_number", first_line)
+        self.assertIn("test_objprint", first_line)
+        self.assertIn(COLOR.GREEN, first_line)
 
     def test_no_color(self):
         with io.StringIO() as buf, redirect_stdout(buf):
