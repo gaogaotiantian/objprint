@@ -2,9 +2,11 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+import inspect
+import itertools
 import json
 import re
-from types import FunctionType
+from types import FunctionType, MethodType
 from .color_util import COLOR, set_color
 
 
@@ -17,6 +19,7 @@ class _PrintConfig:
     elements = -1
     exclude = []
     include = []
+    print_methods = False
     skip_recursion = True
     honor_existing = True
 
@@ -150,6 +153,13 @@ class ObjPrint:
 
     def _get_custom_object_str(self, obj, memo, indent_level, cfg):
 
+        def _get_method_line(attr):
+            if cfg.color:
+                return f"{set_color('def', COLOR.MAGENTA)} "\
+                    f"{set_color(attr, COLOR.GREEN)}{inspect.signature(getattr(obj, attr))}"
+            else:
+                return f"def {attr}{inspect.signature(getattr(obj, attr))}"
+
         def _get_line(key):
             val = self._objstr(obj.__dict__[key], memo, indent_level + 1, cfg)
             if cfg.label and any(re.fullmatch(pattern, key) is not None for pattern in cfg.label):
@@ -159,20 +169,31 @@ class ObjPrint:
             else:
                 return f".{key} = {val}"
 
-        if hasattr(obj, "__dict__"):
-            keys = []
-            for key in obj.__dict__.keys():
-                if cfg.include:
-                    if not any((re.fullmatch(pattern, key) is not None for pattern in cfg.include)):
-                        continue
-                if cfg.exclude:
-                    if any((re.fullmatch(pattern, key) is not None for pattern in cfg.exclude)):
-                        continue
-                keys.append(key)
-
-            elems = (_get_line(key) for key in sorted(keys))
-        else:
+        if not hasattr(obj, "__dict__"):
             return str(obj)
+
+        keys = []
+        for key in obj.__dict__.keys():
+            if cfg.include:
+                if not any((re.fullmatch(pattern, key) is not None for pattern in cfg.include)):
+                    continue
+            if cfg.exclude:
+                if any((re.fullmatch(pattern, key) is not None for pattern in cfg.exclude)):
+                    continue
+            keys.append(key)
+
+        methods = []
+        if cfg.print_methods:
+            for attr in dir(obj):
+                if not attr.startswith("__"):
+                    # Ignore magic functions
+                    if isinstance(getattr(obj, attr), MethodType):
+                        methods.append(attr)
+
+        elems = itertools.chain(
+            (_get_method_line(attr) for attr in sorted(methods)),
+            (_get_line(key) for key in sorted(keys))
+        )
 
         return self._get_pack_str(elems, obj, indent_level, cfg)
 

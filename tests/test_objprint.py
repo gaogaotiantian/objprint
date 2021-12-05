@@ -96,6 +96,23 @@ class TestObjprint(ObjprintTestCase):
         self.assertNotIn("depth2", output)
         self.assertNotIn("element", output)
 
+    def test_print_methods(self):
+        class ObjWithMethods:
+            def obj_method(self, method_arg, **kwargs):
+                pass
+
+            def __eq__(self):
+                # this should be ignored
+                pass
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjWithMethods()
+            op(obj, print_methods=True)
+            output = buf.getvalue()
+
+        expected = "<ObjWithMethods\n  def obj_method(method_arg, **kwargs)\n>\n"
+        self.assertEqual(output, expected)
+
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"elem1": 1, "elem2": 2, "elem3": 3})
@@ -128,6 +145,19 @@ class TestObjprint(ObjprintTestCase):
             output = buf.getvalue()
         self.assertIn(COLOR.YELLOW, output)
         self.assertIn(COLOR.DEFAULT, output)
+
+    def test_color_with_print_methods(self):
+        class ObjWithMethods:
+            def obj_method(self, method_arg, **kwargs):
+                pass
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjWithMethods()
+            op(obj, print_methods=True, color=True)
+            output = buf.getvalue()
+
+        self.assertIn(COLOR.MAGENTA, output)
+        self.assertIn("obj_method", output)
 
     def test_no_color(self):
         with io.StringIO() as buf, redirect_stdout(buf):
