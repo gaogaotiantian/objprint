@@ -27,6 +27,17 @@ class TestObjprint(ObjprintTestCase):
         expectedString = "1\n2\n"
         self.assertEqual(expectedString, output)
 
+    def test_return(self):
+        obj = ObjTest({})
+        obj2 = ObjTest({})
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj_ret = op(obj)
+            self.assertIs(obj_ret, obj)
+            obj_ret1, obj_ret2 = op(obj, obj2)
+            self.assertIs(obj_ret1, obj)
+            self.assertIs(obj_ret2, obj2)
+            self.assertEqual(pow(*op(3, 2)), 9)
+
     def test_json(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             b = ObjTest({"name": "Lisa", "age": 19})

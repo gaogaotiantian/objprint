@@ -71,6 +71,10 @@ class ObjPrint:
             for obj in objs:
                 self._sys_print(self.objstr(obj, **kwargs), file=file)
 
+        if len(objs) == 1:
+            return objs[0]
+        return objs
+
     def objstr(self, obj, **kwargs):
         # If no color option is specified, don't use color
         if "color" not in kwargs:
