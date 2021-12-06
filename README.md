@@ -283,10 +283,13 @@ Maybe you don't want to import ``op`` in every single file that you want to use.
 use ``install`` to make it globally accessible
 
 ```python
-from objprint import install
+from objprint import op, install
 
 # Now you can use op() in any file
 install()
+
+# This is the same
+op.install()
 
 # You can specify a name for objprint()
 install("my_print")
