@@ -138,6 +138,23 @@ op(Player(), print_methods=True)
 
 As you can see, it will also print the method signature(without ``self`` argument).
 
+#### Line numbers
+
+You can print execution info, including the function it's in, the file and the line number of the printing line.
+This is helpful for you to locate where is this object printed.
+
+```python
+def f():
+    op(Player(), line_number=True)
+f()
+```
+
+```
+f (my_script.py:29)
+<Player 0x7f30e8cb1ac0
+  ...
+>
+```
 ### objjson
 
 ``objprint`` supports print objects to json to make it easier to serialze an object.
@@ -193,7 +210,11 @@ class Player:
 You can disable prints from all the ``op()`` calls globally with ``enable`` config.
 
 ```python
-config(enable=False)
+from objprint import op
+
+op.disable()
+op([1, 2, 3])  # This won't print anything
+op.enable()  # This could fix it!
 ```
 
 Or you can use it for ``op()`` functions individually with some conditions
@@ -255,8 +276,14 @@ You can set the configs globally using ``config`` function
 
 ```python
 from objprint import config
-
 config(indent=4)
+```
+
+Or if you don't want to mess up your name space
+
+```python
+from objprint import op
+op.config(indent=4)
 ```
 
 Or you can do a one time config by passing the arguments into ``objprint`` function
@@ -273,10 +300,13 @@ Maybe you don't want to import ``op`` in every single file that you want to use.
 use ``install`` to make it globally accessible
 
 ```python
-from objprint import install
+from objprint import op, install
 
 # Now you can use op() in any file
 install()
+
+# This is the same
+op.install()
 
 # You can specify a name for objprint()
 install("my_print")

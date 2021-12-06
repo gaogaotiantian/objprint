@@ -62,7 +62,7 @@ class ObjPrint:
         }
         self._sys_print = print
 
-    def objprint(self, *objs, file=None, format="string", **kwargs):
+    def __call__(self, *objs, file=None, format="string", **kwargs):
         cfg = self._configs.overwrite(**kwargs)
         if cfg.enable:
             call_frame = inspect.currentframe().f_back
@@ -217,12 +217,18 @@ class ObjPrint:
         else:
             return f"{curr_code.co_name} ({curr_code.co_filename}:{curr_frame.f_lineno})\n"
 
+    def enable(self):
+        self.config(enable=True)
+
+    def disable(self):
+        self.config(enable=False)
+
     def config(self, **kwargs):
         self._configs.set(**kwargs)
 
     def install(self, name="op"):
         import builtins
-        builtins.__dict__[name] = self.objprint
+        builtins.__dict__[name] = self
 
     def add_indent(self, line, indent_level, cfg):
         if isinstance(line, str):
