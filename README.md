@@ -138,6 +138,23 @@ op(Player(), print_methods=True)
 
 As you can see, it will also print the method signature(without ``self`` argument).
 
+#### Line numbers
+
+You can print execution info, including the function it's in, the file and the line number of the printing line.
+This is helpful for you to locate where is this object printed.
+
+```python
+def f():
+    op(Player(), line_number=True)
+f()
+```
+
+```
+f (my_script.py:29)
+<Player 0x7f30e8cb1ac0
+  ...
+>
+```
 ### objjson
 
 ``objprint`` supports print objects to json to make it easier to serialze an object.
