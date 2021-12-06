@@ -8,7 +8,7 @@ from .objprint import ObjPrint
 from .decorator import add_objprint
 
 _objprint = ObjPrint()
-op = objprint = _objprint.objprint
+op = objprint = _objprint
 objstr = _objprint.objstr
 objjson = _objprint.objjson
 config = _objprint.config

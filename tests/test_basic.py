@@ -44,9 +44,22 @@ class TestBasic(ObjprintTestCase):
     def test_config(self):
         config(indent=4)
         config(indent=2)
+        op.config(indent=4)
+        op.config(indent=2)
 
     def test_install(self):
         install("my_op")
         with io.StringIO() as buf, redirect_stdout(buf):
             my_op(A())  # noqa: F821
+            self.assertTrue(len(buf.getvalue()) > 0)
+
+    def test_enable(self):
+        op.disable()
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(A())
+            self.assertEqual(buf.getvalue(), "")
+
+        op.enable()
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(A())
             self.assertTrue(len(buf.getvalue()) > 0)

@@ -193,7 +193,11 @@ class Player:
 You can disable prints from all the ``op()`` calls globally with ``enable`` config.
 
 ```python
-config(enable=False)
+from objprint import op
+
+op.disable()
+op([1, 2, 3])  # This won't print anything
+op.enable()  # This could fix it!
 ```
 
 Or you can use it for ``op()`` functions individually with some conditions
@@ -255,8 +259,14 @@ You can set the configs globally using ``config`` function
 
 ```python
 from objprint import config
-
 config(indent=4)
+```
+
+Or if you don't want to mess up your name space
+
+```python
+from objprint import op
+op.config(indent=4)
 ```
 
 Or you can do a one time config by passing the arguments into ``objprint`` function
