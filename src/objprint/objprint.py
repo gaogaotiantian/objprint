@@ -11,6 +11,7 @@ from .color_util import COLOR, set_color
 
 
 class _PrintConfig:
+    enable = True
     indent = 2
     depth = 100
     width = 80
@@ -62,16 +63,17 @@ class ObjPrint:
         self._sys_print = print
 
     def objprint(self, *objs, file=None, format="string", **kwargs):
-        call_frame = inspect.currentframe().f_back
-        if format == "json":
-            for obj in objs:
-                self._sys_print(json.dumps(self.objjson(obj), **kwargs))
-        else:
-            # Force color with cfg as if color is not in cfg, objstr will default to False
-            cfg = self._configs.overwrite(**kwargs)
-            kwargs["color"] = cfg.color
-            for obj in objs:
-                self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
+        cfg = self._configs.overwrite(**kwargs)
+        if cfg.enable:
+            call_frame = inspect.currentframe().f_back
+            if format == "json":
+                for obj in objs:
+                    self._sys_print(json.dumps(self.objjson(obj), **kwargs))
+            else:
+                # Force color with cfg as if color is not in cfg, objstr will default to False
+                kwargs["color"] = cfg.color
+                for obj in objs:
+                    self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
 
         if len(objs) == 1:
             return objs[0]

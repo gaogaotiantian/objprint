@@ -38,6 +38,13 @@ class TestObjprint(ObjprintTestCase):
             self.assertIs(obj_ret2, obj2)
             self.assertEqual(pow(*op(3, 2)), 9)
 
+    def test_enable(self):
+        obj = ObjTest({})
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(obj, enable=False)
+            output = buf.getvalue()
+            self.assertEqual(output, "")
+
     def test_json(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             b = ObjTest({"name": "Lisa", "age": 19})

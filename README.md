@@ -188,6 +188,20 @@ class Player:
     pass
 ```
 
+### Enable/Disable the print
+
+You can disable prints from all the ``op()`` calls globally with ``enable`` config.
+
+```python
+config(enable=False)
+```
+
+Or you can use it for ``op()`` functions individually with some conditions
+
+```python
+op(obj, enable=check_do_print())
+```
+
 ### include/exclude attributes
 
 You can include/exclude attributes using regular expression so ```objprint``` will only print
@@ -227,6 +241,7 @@ that match exclusive check.
 ```objprint``` formats the output based on some configs
 
 * ``config_name(default_value)`` - this config's explanation
+* ``enable(True)`` - whether to print, it's like a switch
 * ``depth(100)`` - how deep ```objprint``` goes into nested data structures
 * ``indent(2)`` - the indentation
 * ``width(80)`` - the maximum width a data structure will be presented as a single line
