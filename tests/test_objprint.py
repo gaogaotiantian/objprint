@@ -6,6 +6,8 @@ from contextlib import redirect_stdout
 import io
 import json
 import re
+import sys
+import unittest
 from unittest.mock import patch
 
 from objprint import op
@@ -143,6 +145,7 @@ class TestObjprint(ObjprintTestCase):
         self.assertIn("test_line_number", first_line)
         self.assertIn("test_objprint", first_line)
 
+    @unittest.skipIf(sys.version_info < (3, 8), "only support 3.8+")
     def test_arg_name(self):
         obj = ObjTest({})
         with io.StringIO() as buf, redirect_stdout(buf):
@@ -182,6 +185,14 @@ class TestObjprint(ObjprintTestCase):
                 op(obj, arg_name=True, color=False)
                 output = buf.getvalue()
             self.assertIn("Unknown", output.split("\n")[0])
+
+    @unittest.skipIf(sys.version_info >= (3, 8), "Only 3.6 and 3.7 will fail")
+    def test_arg_name_fail(self):
+        obj = ObjTest({})
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(obj, arg_name=True, color=False)
+            output = buf.getvalue()
+        self.assertIn("Unknown", output.split("\n")[0])
 
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
