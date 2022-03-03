@@ -8,6 +8,7 @@ import json
 import re
 from types import FunctionType, MethodType
 from .color_util import COLOR, set_color
+from .frame_analyzer import FrameAnalyzer
 
 
 class _PrintConfig:
@@ -21,6 +22,7 @@ class _PrintConfig:
     exclude = []
     include = []
     line_number = False
+    arg_name = False
     print_methods = False
     skip_recursion = True
     honor_existing = True
@@ -61,6 +63,7 @@ class ObjPrint:
             set: "{}"
         }
         self._sys_print = print
+        self.frame_analyzer = FrameAnalyzer()
 
     def __call__(self, *objs, file=None, format="string", **kwargs):
         cfg = self._configs.overwrite(**kwargs)
@@ -72,8 +75,16 @@ class ObjPrint:
             else:
                 # Force color with cfg as if color is not in cfg, objstr will default to False
                 kwargs["color"] = cfg.color
-                for obj in objs:
-                    self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
+                if cfg.arg_name:
+                    args = self.frame_analyzer.get_args(call_frame)
+                    if args is None:
+                        args = ["Unknown Arg" for _ in range(len(objs))]
+                    for arg, obj in zip(args, objs):
+                        self._sys_print(f"{arg}:")
+                        self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
+                else:
+                    for obj in objs:
+                        self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
 
         if len(objs) == 1:
             return objs[0]

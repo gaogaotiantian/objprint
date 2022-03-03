@@ -16,7 +16,7 @@ release:
 	python -m twine upload dist/*
 
 lint:
-	flake8 src/ tests/ --count --max-line-length=127 --ignore=W503
+	flake8 --exclude src/objprint/executing.py src/ tests/ --count --max-line-length=127 --ignore=W503
 
 test:
 	python -m unittest
