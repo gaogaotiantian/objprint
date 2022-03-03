@@ -4,6 +4,7 @@
 import ast
 import inspect
 import io
+import sys
 import tokenize
 from .executing import Source
 
@@ -44,6 +45,8 @@ class FrameAnalyzer:
         return args
 
     def get_executing_function_call_str(self, frame):
+        if sys.version_info < (3, 8):
+            return None
         node = Source.executing(frame).node
         if node is None:
             return None
