@@ -10,7 +10,6 @@ from unittest.mock import patch
 
 from objprint import op
 from objprint.color_util import COLOR
-from objprint.executing import Source
 from .objtest import ObjTest, ObjprintTestCase
 
 
