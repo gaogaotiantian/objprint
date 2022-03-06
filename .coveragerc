@@ -1,0 +1,4 @@
+[run]
+omit = 
+    # executing is imported
+    */objprint/executing.py

@@ -6,6 +6,7 @@ from contextlib import redirect_stdout
 import io
 import json
 import re
+from unittest.mock import patch
 
 from objprint import op
 from objprint.color_util import COLOR
@@ -141,6 +142,52 @@ class TestObjprint(ObjprintTestCase):
         first_line = output.split("\n")[0]
         self.assertIn("test_line_number", first_line)
         self.assertIn("test_objprint", first_line)
+
+    def test_arg_name(self):
+        obj = ObjTest({})
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(obj, arg_name=True, color=False)
+            output = buf.getvalue()
+        self.assertIn("obj:", output.split("\n")[0])
+
+        obj = ObjTest({})
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(obj, arg_name=True, color=True)
+            output = buf.getvalue()
+        self.assertIn("obj:", output.split("\n")[0])
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(
+                obj,
+                arg_name=True,
+                color=False
+            )
+            output = buf.getvalue()
+        self.assertIn("obj:", output.split("\n")[0])
+
+        d = {"b": [0, 1, 2]}
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(
+                d["b"][0 + 1],
+                obj,
+                arg_name=True,
+                color=False
+            )
+            output = buf.getvalue()
+        self.assertIn("d[\"b\"][0 + 1]:", output.split("\n")[0])
+        self.assertIn("obj", output.split("\n")[2])
+
+        with patch("objprint.executing.Source.executing", return_value=ObjTest({"node": None})):
+            with io.StringIO() as buf, redirect_stdout(buf):
+                op(obj, arg_name=True, color=False)
+                output = buf.getvalue()
+            self.assertIn("Unknown", output.split("\n")[0])
+
+        with patch("inspect.getsource", side_effect=OSError()):
+            with io.StringIO() as buf, redirect_stdout(buf):
+                op(obj, arg_name=True, color=False)
+                output = buf.getvalue()
+            self.assertIn("Unknown", output.split("\n")[0])
 
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
