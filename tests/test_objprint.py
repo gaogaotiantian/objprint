@@ -150,6 +150,12 @@ class TestObjprint(ObjprintTestCase):
             output = buf.getvalue()
         self.assertIn("obj:", output.split("\n")[0])
 
+        obj = ObjTest({})
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(obj, arg_name=True, color=True)
+            output = buf.getvalue()
+        self.assertIn("obj:", output.split("\n")[0])
+
         with io.StringIO() as buf, redirect_stdout(buf):
             op(
                 obj,

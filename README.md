@@ -155,6 +155,22 @@ f (my_script.py:29)
   ...
 >
 ```
+
+### Argument names
+
+You can print the expression of the argument with `arg_name`
+
+```python
+op(Player(), arg_name=True)
+```
+
+```
+Player():
+<Player 0x7f495850a8d0
+  ...
+>
+```
+
 ### objjson
 
 ``objprint`` supports print objects to json to make it easier to serialze an object.
@@ -269,6 +285,7 @@ that match exclusive check.
 * ``elements(-1)`` - the maximum number of elements that will be displayed, ``-1`` means no restriction
 * ``color(True)`` - whether to use colored scheme
 * ``line_number(False)`` - whether to print the ``function (filename:line_number)`` before printing the object
+* ``arg_name(False)`` - whether to print the argument expression before the argument value
 * ``skip_recursion(True)`` - whether skip printing recursive data, which would cause infinite recursion without ``depth`` constraint
 * ``honor_existing(True)`` - whether to use the existing user defined ``__repr__`` or ``__str__`` method
 

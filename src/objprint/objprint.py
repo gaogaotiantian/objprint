@@ -80,7 +80,10 @@ class ObjPrint:
                     if args is None:
                         args = ["Unknown Arg" for _ in range(len(objs))]
                     for arg, obj in zip(args, objs):
-                        self._sys_print(f"{arg}:")
+                        if cfg.color:
+                            self._sys_print(set_color(f"{arg}:", COLOR.RED))
+                        else:
+                            self._sys_print(f"{arg}:")
                         self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
                 else:
                     for obj in objs:
