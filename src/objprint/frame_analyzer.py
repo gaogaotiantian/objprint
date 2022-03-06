@@ -59,7 +59,7 @@ class FrameAnalyzer:
             return ast.get_source_segment(source, node)
 
     def get_source_segment3637(self, source, node):
-        if node.lineno is None or node.col_offset is None:
+        if node.lineno is None or node.col_offset is None:  # pragma: no cover
             return None
         lineno = node.lineno - 1
         lines = self._splitlines_no_ff(source)
@@ -68,7 +68,7 @@ class FrameAnalyzer:
         lines.insert(0, first_line)
         return "".join(lines)
 
-    def _splitlines_no_ff(self, source):
+    def _splitlines_no_ff(self, source):  # pragma: no cover
         """Split a string into lines ignoring form feed and other chars.
         This mimics how the Python parser splits source code.
 
