@@ -254,6 +254,14 @@ class TestObjprint(ObjprintTestCase):
         self.assertNotIn(COLOR.CYAN, output)
         self.assertNotIn(COLOR.DEFAULT, output)
 
+    def test_unsortable_dict(self):
+        d = {1: 2, "a": 3}
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(d, color=False)
+            output = buf.getvalue()
+        self.assertIn("1", output)
+        self.assertIn("a", output)
+
     def test_label_only(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"Age": 10, "grade": 5})
