@@ -129,9 +129,14 @@ class ObjPrint:
         if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
             elems = (f"{self._objstr(val, memo, indent_level + 1, cfg)}" for val in obj)
         elif isinstance(obj, dict):
+            items = obj.items()
+            try:
+                items = sorted(items)
+            except TypeError:
+                pass
             elems = (
                 f"{self._objstr(key, None, indent_level + 1, cfg)}: {self._objstr(val, memo, indent_level + 1, cfg)}"
-                for key, val in sorted(obj.items())
+                for key, val in items
             )
         else:
             # It's an object
