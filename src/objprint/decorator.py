@@ -2,6 +2,9 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+import functools
+
+
 def add_objprint(orig_class=None, format="string", **kwargs):
 
     from . import _objprint
@@ -19,9 +22,9 @@ def add_objprint(orig_class=None, format="string", **kwargs):
 
     if orig_class is None:
         def wrapper(cls):
-            cls.__str__ = __str__
+            cls.__str__ = functools.wraps(cls.__str__)(__str__)
             return cls
         return wrapper
     else:
-        orig_class.__str__ = __str__
+        orig_class.__str__ = functools.wraps(orig_class.__str__)(__str__)
         return orig_class
