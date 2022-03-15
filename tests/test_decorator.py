@@ -88,6 +88,12 @@ class TestDecorator(ObjprintTestCase):
 
         self.assertEqual(output, expected)
 
+    def test_signature(self):
+        obj = DecoratedClass()
+        self.assertIn("DecoratedClass", str(obj.__str__))
+        obj = TestWrapper()
+        self.assertIn("TestWrapper", str(obj.__str__))
+
     def test_json(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             print(DecoratedJsonCls())
