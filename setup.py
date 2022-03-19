@@ -14,6 +14,10 @@ with open("./src/objprint/__init__.py") as f:
         print("Can't find version! Stop Here!")
         exit(1)
 
+install_requires = [
+    'printy>=2.2.0'
+]
+
 setuptools.setup(
     name="objprint",
     version=version,
@@ -37,4 +41,5 @@ setuptools.setup(
         "Operating System :: OS Independent"
     ],
     python_requires=">=3.6",
+    install_requires=install_requires,
 )
