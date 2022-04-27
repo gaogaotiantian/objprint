@@ -33,4 +33,4 @@ if sys.platform == "win32":
 def set_color(s, color):
     if color_support:
         return f"{color}{s}{COLOR.DEFAULT}"
-    return f"{s}"
+    return f"{s}"  # pragma: no cover
