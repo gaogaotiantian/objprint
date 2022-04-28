@@ -6,7 +6,7 @@ import inspect
 import itertools
 import json
 import re
-from types import FunctionType, MethodType
+from types import FunctionType
 from .color_util import COLOR, set_color
 from .frame_analyzer import FrameAnalyzer
 
@@ -19,6 +19,7 @@ class _PrintConfig:
     color = True
     label = []
     elements = -1
+    attr_pattern = r"(?!_).*"
     exclude = []
     include = []
     line_number = False
@@ -193,7 +194,7 @@ class ObjPrint:
                 return f"def {attr}{inspect.signature(getattr(obj, attr))}"
 
         def _get_line(key):
-            val = self._objstr(obj.__dict__[key], memo, indent_level + 1, cfg)
+            val = self._objstr(getattr(obj, key), memo, indent_level + 1, cfg)
             if cfg.label and any(re.fullmatch(pattern, key) is not None for pattern in cfg.label):
                 return set_color(f".{key} = {val}", COLOR.YELLOW)
             elif cfg.color:
@@ -201,30 +202,26 @@ class ObjPrint:
             else:
                 return f".{key} = {val}"
 
-        if not hasattr(obj, "__dict__"):
-            return str(obj)
-
-        keys = []
-        for key in obj.__dict__.keys():
-            if cfg.include:
-                if not any((re.fullmatch(pattern, key) is not None for pattern in cfg.include)):
-                    continue
-            if cfg.exclude:
-                if any((re.fullmatch(pattern, key) is not None for pattern in cfg.exclude)):
-                    continue
-            keys.append(key)
-
+        attrs = []
         methods = []
-        if cfg.print_methods:
-            for attr in dir(obj):
-                if not attr.startswith("__"):
-                    # Ignore magic functions
-                    if isinstance(getattr(obj, attr), MethodType):
+        for attr in dir(obj):
+            if re.fullmatch(cfg.attr_pattern, attr):
+                if cfg.include:
+                    if not any((re.fullmatch(pattern, attr) is not None for pattern in cfg.include)):
+                        continue
+                if cfg.exclude:
+                    if any((re.fullmatch(pattern, attr) is not None for pattern in cfg.exclude)):
+                        continue
+                attr_val = getattr(obj, attr)
+                if inspect.ismethod(attr_val) or inspect.isbuiltin(attr_val):
+                    if cfg.print_methods:
                         methods.append(attr)
+                else:
+                    attrs.append(attr)
 
         elems = itertools.chain(
             (_get_method_line(attr) for attr in sorted(methods)),
-            (_get_line(key) for key in sorted(keys))
+            (_get_line(key) for key in sorted(attrs))
         )
 
         return self._get_pack_str(elems, obj, indent_level, cfg)

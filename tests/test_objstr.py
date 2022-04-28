@@ -2,7 +2,6 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
-import io
 import random
 from objprint import objstr, config
 from .objtest import ObjTest, ObjprintTestCase
@@ -38,8 +37,8 @@ class TestObjStr(ObjprintTestCase):
             self.assertEqual(objstr(obj), s)
 
     def test_one_line_object(self):
-        s = io.StringIO()
-        self.assertNotIn("\n", objstr(s))
+        obj = ObjTest({})
+        self.assertNotIn("\n", objstr(obj))
 
     def test_get_ellipsis(self):
         obj = ObjTest({})
