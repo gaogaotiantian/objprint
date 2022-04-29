@@ -59,6 +59,15 @@ class TestObjStr(ObjprintTestCase):
         self.assertIn(hex(obj_id), objstr(obj, color=True))
         self.assertIn(hex(obj_id), objstr(obj, color=False))
 
+    def test_attr_pattern(self):
+        t = ObjTest({"pos1": "in", "pos2": "out", "other3": "ex"})
+        output = objstr(t, attr_pattern=r"pos.")
+        self.assertIn("pos1", output)
+        self.assertIn("pos2", output)
+        self.assertNotIn("other3", output)
+        with self.assertRaises(TypeError):
+            output = objstr(t, attr_pattern=[r"pos."])
+
     def test_include(self):
         t = ObjTest({"pos1": "in", "pos2": "out", "pos3": "ex"})
         output = objstr(t, include=['pos1'])
