@@ -239,10 +239,22 @@ Or you can use it for ``op()`` functions individually with some conditions
 op(obj, enable=check_do_print())
 ```
 
-### include/exclude attributes
+### attribute selection
 
-You can include/exclude attributes using regular expression so ```objprint``` will only print
-out the attributes you are interested in.
+You can customize which attribute to print with name filters.
+
+``objprint`` will try to match the attribute name with ``attr_pattern`` regex. The default
+``attr_pattern`` is ``r"(!_).*"``, which means anything that does NOT start with an `_`.
+
+You can customize ``attr_pattern`` to select the attributes you want to print:
+
+```python
+# This will print all the attributes that do not start with __
+op(Player(), attr_pattern=r"(!__).*")
+```
+
+You can also use ``include`` and ``exclude`` to specify attributes to print with regular expression
+so ```objprint``` will only print out the attributes you are interested in.
 
 ```python
 op(Player(), include=["name"])
@@ -271,7 +283,7 @@ op(Player(), exclude=[".*s"])
 If you specify both ``include`` and ``exclude``, it will do a inclusive check first, then filter out the attributes
 that match exclusive check.
 
-```include``` and ```exclude``` arguments work on ```objprint```, ```objstr``` and ```@add_objprint```.
+```attr_pattern```, ```include``` and ```exclude``` arguments work on ```objprint```, ```objstr``` and ```@add_objprint```.
 
 ### config
 
@@ -288,6 +300,9 @@ that match exclusive check.
 * ``arg_name(False)`` - whether to print the argument expression before the argument value
 * ``skip_recursion(True)`` - whether skip printing recursive data, which would cause infinite recursion without ``depth`` constraint
 * ``honor_existing(True)`` - whether to use the existing user defined ``__repr__`` or ``__str__`` method
+* ``attr_pattern(r"(!_).*")`` - the regex pattern for attribute selection
+* ``include([])`` - the list of attribute regex to do an inclusive filter
+* ``exclude([])`` - the list of attribute regex to do an exclusive filter
 
 You can set the configs globally using ``config`` function
 

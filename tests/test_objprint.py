@@ -189,6 +189,14 @@ class TestObjprint(ObjprintTestCase):
                 output = buf.getvalue()
             self.assertIn("Unknown", output.split("\n")[0])
 
+    def test_config_attr_pattern(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            obj = ObjTest({"elem1": 1, "elem2": 2, "attr3": 3})
+            op(obj, indent=1, attr_pattern=r"elem.")
+            output = buf.getvalue()
+        expected = r"<ObjTest 0x[0-9a-fA-F]*\n .elem1 = 1,\n .elem2 = 2\n>\n"
+        self.assertRegex(output, expected)
+
     def test_config_include(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"elem1": 1, "elem2": 2, "elem3": 3})
