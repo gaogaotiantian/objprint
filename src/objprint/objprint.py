@@ -70,21 +70,37 @@ class ObjPrint:
         cfg = self._configs.overwrite(**kwargs)
         if cfg.enable:
             call_frame = inspect.currentframe().f_back
+
+            # Strip the kwargs that only works in op() so it won't break
+            # json.dumps()
+            kwargs.pop("arg_name", None)
+
+            if cfg.line_number:
+                self._sys_print(self._get_line_number_str(call_frame, cfg=cfg))
+
+            if cfg.arg_name:
+                args = self.frame_analyzer.get_args(call_frame)
+                if args is None:
+                    args = ["Unknown Arg" for _ in range(len(objs))]
+                if cfg.color:
+                    args = [set_color(f"{arg}:", COLOR.RED) for arg in args]
+                else:
+                    args = [f"{arg}:" for arg in args]
+
             if format == "json":
-                for obj in objs:
-                    self._sys_print(json.dumps(self.objjson(obj), **kwargs))
+                if cfg.arg_name:
+                    for arg, obj in zip(args, objs):
+                        self._sys_print(arg)
+                        self._sys_print(json.dumps(self.objjson(obj), **kwargs))
+                else:
+                    for obj in objs:
+                        self._sys_print(json.dumps(self.objjson(obj), **kwargs))
             else:
                 # Force color with cfg as if color is not in cfg, objstr will default to False
                 kwargs["color"] = cfg.color
                 if cfg.arg_name:
-                    args = self.frame_analyzer.get_args(call_frame)
-                    if args is None:
-                        args = ["Unknown Arg" for _ in range(len(objs))]
                     for arg, obj in zip(args, objs):
-                        if cfg.color:
-                            self._sys_print(set_color(f"{arg}:", COLOR.RED))
-                        else:
-                            self._sys_print(f"{arg}:")
+                        self._sys_print(arg)
                         self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
                 else:
                     for obj in objs:
@@ -102,10 +118,7 @@ class ObjPrint:
             kwargs["color"] = False
         cfg = self._configs.overwrite(**kwargs)
         memo = set() if cfg.skip_recursion else None
-        if cfg.line_number:
-            return self._get_line_number_str(call_frame, cfg=cfg) + self._objstr(obj, memo, indent_level=0, cfg=cfg)
-        else:
-            return self._objstr(obj, memo, indent_level=0, cfg=cfg)
+        return self._objstr(obj, memo, indent_level=0, cfg=cfg)
 
     def _objstr(self, obj, memo, indent_level, cfg):
         # If it's builtin type, return it directly
@@ -229,9 +242,9 @@ class ObjPrint:
     def _get_line_number_str(self, curr_frame, cfg):
         curr_code = curr_frame.f_code
         if cfg.color:
-            return f"{set_color(curr_code.co_name, COLOR.GREEN)} ({curr_code.co_filename}:{curr_frame.f_lineno})\n"
+            return f"{set_color(curr_code.co_name, COLOR.GREEN)} ({curr_code.co_filename}:{curr_frame.f_lineno})"
         else:
-            return f"{curr_code.co_name} ({curr_code.co_filename}:{curr_frame.f_lineno})\n"
+            return f"{curr_code.co_name} ({curr_code.co_filename}:{curr_frame.f_lineno})"
 
     def enable(self):
         self.config(enable=True)

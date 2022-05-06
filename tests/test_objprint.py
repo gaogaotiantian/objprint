@@ -59,6 +59,20 @@ class TestObjprint(ObjprintTestCase):
             output = buf.getvalue()
         self.assertEqual(output, json.dumps({".type": "ObjTest", "name": "Lisa", "age": 19}, indent=2) + "\n")
 
+    def test_json_with_arg_name(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            unique_name = ObjTest({"name": "Lisa", "age": 19})
+            op(unique_name, format="json", arg_name=True)
+            output = buf.getvalue()
+        self.assertIn(json.dumps({".type": "ObjTest", "name": "Lisa", "age": 19}), output)
+        self.assertIn("b", output)
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            b = ObjTest({"name": "Lisa", "age": 19})
+            op(b, format="json", indent=2)
+            output = buf.getvalue()
+        self.assertEqual(output, json.dumps({".type": "ObjTest", "name": "Lisa", "age": 19}, indent=2) + "\n")
+
     def test_config_indent(self):
         with io.StringIO() as buf, redirect_stdout(buf):
             obj = ObjTest({"name": "Alpha"})
