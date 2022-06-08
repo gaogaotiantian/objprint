@@ -173,7 +173,7 @@ Player():
 
 ### objjson
 
-``objprint`` supports print objects to json to make it easier to serialze an object.
+``objprint`` supports print objects to json to make it easier to serialize an object.
 
 ``objjson`` returns a jsonifiable object that can be dumped with ``json.dumps``
 
