@@ -6,14 +6,18 @@ import inspect
 import io
 import sys
 import tokenize
-from .executing import Source
+from types import FrameType
+from typing import List, Optional
+from .executing import Source  # type: ignore
 
 
 class FrameAnalyzer:
     def __init__(self):
         pass
 
-    def get_args(self, frame):
+    def get_args(self, frame: Optional[FrameType]) -> Optional[List[str]]:
+        if frame is None:
+            return None
         func_call_str = self.get_executing_function_call_str(frame)
         if func_call_str is None:
             return None
@@ -44,12 +48,15 @@ class FrameAnalyzer:
             last_pos = token.end
         return args
 
-    def get_executing_function_call_str(self, frame):
-        node = Source.executing(frame).node
+    def get_executing_function_call_str(self, frame: FrameType) -> Optional[str]:
+        node: Optional[ast.AST] = Source.executing(frame).node
         if node is None:
             return None
         try:
-            source = inspect.getsource(inspect.getmodule(frame))
+            module = inspect.getmodule(frame)
+            if module is None:
+                return None
+            source = inspect.getsource(module)
         except OSError:
             return None
 
@@ -58,7 +65,7 @@ class FrameAnalyzer:
         else:
             return ast.get_source_segment(source, node)
 
-    def get_source_segment3637(self, source, node):
+    def get_source_segment3637(self, source: str, node: ast.AST) -> str:
         if node.lineno is None or node.col_offset is None:  # pragma: no cover
             return None
         lineno = node.lineno - 1
@@ -68,7 +75,7 @@ class FrameAnalyzer:
         lines.insert(0, first_line)
         return "".join(lines)
 
-    def _splitlines_no_ff(self, source):  # pragma: no cover
+    def _splitlines_no_ff(self, source: str) -> List[str]:  # pragma: no cover
         """Split a string into lines ignoring form feed and other chars.
         This mimics how the Python parser splits source code.
 

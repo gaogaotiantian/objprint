@@ -5,17 +5,17 @@
 import functools
 
 
-def add_objprint(orig_class=None, format="string", **kwargs):
+def add_objprint(orig_class=None, format: str = "string", **kwargs):
 
     from . import _objprint
 
     if format == "json":
         import json
 
-        def __str__(self):
+        def __str__(self) -> str:
             return json.dumps(_objprint.objjson(self), **kwargs)
     else:
-        def __str__(self):
+        def __str__(self) -> str:
             cfg = _objprint._configs.overwrite(**kwargs)
             memo = set() if cfg.skip_recursion else None
             return _objprint._get_custom_object_str(self, memo, indent_level=0, cfg=cfg)

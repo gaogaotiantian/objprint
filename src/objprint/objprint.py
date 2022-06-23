@@ -6,27 +6,32 @@ import inspect
 import itertools
 import json
 import re
-from types import FunctionType
+from types import FunctionType, FrameType
+from typing import Any, Iterable, List, Optional, Set, TypeVar
+
 from .color_util import COLOR, set_color
 from .frame_analyzer import FrameAnalyzer
 
 
+SourceLine = TypeVar("SourceLine", str, List[str])
+
+
 class _PrintConfig:
-    enable = True
-    indent = 2
-    depth = 100
-    width = 80
-    color = True
-    label = []
-    elements = -1
-    attr_pattern = r"(?!_).*"
-    exclude = []
-    include = []
-    line_number = False
-    arg_name = False
-    print_methods = False
-    skip_recursion = True
-    honor_existing = True
+    enable: bool = True
+    indent: int = 2
+    depth: int = 100
+    width: int = 80
+    color: bool = True
+    label: List[str] = []
+    elements: int = -1
+    attr_pattern: str = r"(?!_).*"
+    exclude: List[str] = []
+    include: List[str] = []
+    line_number: bool = False
+    arg_name: bool = False
+    print_methods: bool = False
+    skip_recursion: bool = True
+    honor_existing: bool = True
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -48,7 +53,7 @@ class _PrintConfig:
             else:
                 raise ValueError(f"{key} is not configurable")
 
-    def overwrite(self, **kwargs):
+    def overwrite(self, **kwargs) -> "_PrintConfig":
         ret = _PrintConfig(**kwargs)
         return ret
 
@@ -66,10 +71,14 @@ class ObjPrint:
         self._sys_print = print
         self.frame_analyzer = FrameAnalyzer()
 
-    def __call__(self, *objs, file=None, format="string", **kwargs):
+    def __call__(self, *objs: Any, file: Any = None, format: str = "string", **kwargs) -> Any:
         cfg = self._configs.overwrite(**kwargs)
         if cfg.enable:
-            call_frame = inspect.currentframe().f_back
+            # if inspect.currentframe() returns None, set call_frame to None
+            # and let the callees handle it
+            call_frame = inspect.currentframe()
+            if call_frame is not None:
+                call_frame = call_frame.f_back
 
             # Strip the kwargs that only works in op() so it won't break
             # json.dumps()
@@ -110,17 +119,20 @@ class ObjPrint:
             return objs[0]
         return objs
 
-    def objstr(self, obj, call_frame=None, **kwargs):
-        if call_frame is None:
-            call_frame = inspect.currentframe().f_back
+    def objstr(self, obj: Any, call_frame: Optional[FrameType] = None, **kwargs) -> str:
+        if call_frame is not None:
+            call_frame = inspect.currentframe()
+            if call_frame is not None:
+                call_frame = call_frame.f_back
+
         # If no color option is specified, don't use color
         if "color" not in kwargs:
             kwargs["color"] = False
         cfg = self._configs.overwrite(**kwargs)
-        memo = set() if cfg.skip_recursion else None
+        memo: Optional[Set[int]] = set() if cfg.skip_recursion else None
         return self._objstr(obj, memo, indent_level=0, cfg=cfg)
 
-    def _objstr(self, obj, memo, indent_level, cfg):
+    def _objstr(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig) -> str:
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
@@ -143,7 +155,7 @@ class ObjPrint:
         if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
             elems = (f"{self._objstr(val, memo, indent_level + 1, cfg)}" for val in obj)
         elif isinstance(obj, dict):
-            items = obj.items()
+            items = [(key, val) for key, val in obj.items()]
             try:
                 items = sorted(items)
             except TypeError:
@@ -167,10 +179,10 @@ class ObjPrint:
 
         return self._get_pack_str(elems, obj, indent_level, cfg)
 
-    def objjson(self, obj):
+    def objjson(self, obj: Any) -> Any:
         return self._objjson(obj, set())
 
-    def _objjson(self, obj, memo):
+    def _objjson(self, obj: Any, memo: Set[int]) -> Any:
         """
         return a jsonifiable object from obj
         """
@@ -197,16 +209,16 @@ class ObjPrint:
 
         return ret
 
-    def _get_custom_object_str(self, obj, memo, indent_level, cfg):
+    def _get_custom_object_str(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig):
 
-        def _get_method_line(attr):
+        def _get_method_line(attr: str) -> str:
             if cfg.color:
                 return f"{set_color('def', COLOR.MAGENTA)} "\
                     f"{set_color(attr, COLOR.GREEN)}{inspect.signature(getattr(obj, attr))}"
             else:
                 return f"def {attr}{inspect.signature(getattr(obj, attr))}"
 
-        def _get_line(key):
+        def _get_line(key: str) -> str:
             val = self._objstr(getattr(obj, key), memo, indent_level + 1, cfg)
             if cfg.label and any(re.fullmatch(pattern, key) is not None for pattern in cfg.label):
                 return set_color(f".{key} = {val}", COLOR.YELLOW)
@@ -239,32 +251,38 @@ class ObjPrint:
 
         return self._get_pack_str(elems, obj, indent_level, cfg)
 
-    def _get_line_number_str(self, curr_frame, cfg):
+    def _get_line_number_str(self, curr_frame: Optional[FrameType], cfg: _PrintConfig):
+        if curr_frame is None:
+            return "Unknown Line Number"
         curr_code = curr_frame.f_code
         if cfg.color:
             return f"{set_color(curr_code.co_name, COLOR.GREEN)} ({curr_code.co_filename}:{curr_frame.f_lineno})"
         else:
             return f"{curr_code.co_name} ({curr_code.co_filename}:{curr_frame.f_lineno})"
 
-    def enable(self):
+    def enable(self) -> None:
         self.config(enable=True)
 
-    def disable(self):
+    def disable(self) -> None:
         self.config(enable=False)
 
-    def config(self, **kwargs):
+    def config(self, **kwargs) -> None:
         self._configs.set(**kwargs)
 
-    def install(self, name="op"):
+    def install(self, name: str = "op") -> None:
         import builtins
         builtins.__dict__[name] = self
 
-    def add_indent(self, line, indent_level, cfg):
+    def add_indent(
+            self,
+            line: SourceLine,
+            indent_level: int,
+            cfg: _PrintConfig) -> SourceLine:
         if isinstance(line, str):
             return " " * (indent_level * cfg.indent) + line
         return [" " * (indent_level * cfg.indent) + ll for ll in line]
 
-    def _get_header_footer(self, obj, cfg):
+    def _get_header_footer(self, obj: Any, cfg: _PrintConfig):
         obj_type = type(obj)
         if obj_type in self.indicator_map:
             indicator = self.indicator_map[obj_type]
@@ -275,11 +293,11 @@ class ObjPrint:
             else:
                 return f"<{obj_type.__name__} {hex(id(obj))}", ">"
 
-    def _get_ellipsis(self, obj, cfg):
+    def _get_ellipsis(self, obj: Any, cfg: _PrintConfig) -> str:
         header, footer = self._get_header_footer(obj, cfg)
         return f"{header} ... {footer}"
 
-    def _get_pack_str(self, elems, obj, indent_level, cfg):
+    def _get_pack_str(self, elems: Iterable[str], obj: Any, indent_level: int, cfg: _PrintConfig) -> str:
         """
         :param elems generator: generator of string elements to pack together
         :param obj_type type: object type
