@@ -43,7 +43,7 @@ class _PrintConfig:
             else:
                 raise ValueError(f"{key} is not configurable")
 
-    def set(self, **kwargs):
+    def set(self, **kwargs) -> None:
         for key, val in kwargs.items():
             if hasattr(_PrintConfig, key):
                 if isinstance(val, type(getattr(_PrintConfig, key))):
@@ -297,7 +297,12 @@ class ObjPrint:
         header, footer = self._get_header_footer(obj, cfg)
         return f"{header} ... {footer}"
 
-    def _get_pack_str(self, elems: Iterable[str], obj: Any, indent_level: int, cfg: _PrintConfig) -> str:
+    def _get_pack_str(
+            self,
+            elems: Iterable[str],
+            obj: Any,
+            indent_level: int,
+            cfg: _PrintConfig) -> str:
         """
         :param elems generator: generator of string elements to pack together
         :param obj_type type: object type
@@ -309,12 +314,13 @@ class ObjPrint:
             elems = list(elems)
         else:
             first_elems = []
+            it = iter(elems)
             try:
                 for _ in range(cfg.elements):
-                    first_elems.append(next(elems))
+                    first_elems.append(next(it))
             except StopIteration:
                 pass
-            if next(elems, None) is not None:
+            if next(it, None) is not None:
                 first_elems.append("...")
             elems = first_elems
 
