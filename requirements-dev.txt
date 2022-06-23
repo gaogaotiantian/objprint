@@ -1,0 +1,6 @@
+flake8
+setuptools
+wheel
+twine
+coverage
+mypy

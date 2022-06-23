@@ -30,7 +30,7 @@ if sys.platform == "win32":
         color_support = False
 
 
-def set_color(s, color):
+def set_color(s: str, color: str) -> str:
     if color_support:
         return f"{color}{s}{COLOR.DEFAULT}"
     return f"{s}"  # pragma: no cover
