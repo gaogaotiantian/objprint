@@ -197,6 +197,18 @@ class TestObjprint(ObjprintTestCase):
                 output = buf.getvalue()
             self.assertIn("Unknown", output.split("\n")[0])
 
+        with patch("inspect.currentframe", return_value=None):
+            with io.StringIO() as buf, redirect_stdout(buf):
+                op(obj, arg_name=True, color=False)
+                output = buf.getvalue()
+            self.assertIn("Unknown", output.split("\n")[0])
+
+        with patch("inspect.getmodule", return_value=None):
+            with io.StringIO() as buf, redirect_stdout(buf):
+                op(obj, arg_name=True, color=False)
+                output = buf.getvalue()
+            self.assertIn("Unknown", output.split("\n")[0])
+
         with patch("inspect.getsource", side_effect=OSError()):
             with io.StringIO() as buf, redirect_stdout(buf):
                 op(obj, arg_name=True, color=False)
@@ -267,6 +279,12 @@ class TestObjprint(ObjprintTestCase):
         self.assertIn("test_color_with_line_number", first_line)
         self.assertIn("test_objprint", first_line)
         self.assertIn(COLOR.GREEN, first_line)
+
+        with patch("inspect.currentframe", return_value=None):
+            with io.StringIO() as buf, redirect_stdout(buf):
+                op(obj, line_number=True, color=False)
+                output = buf.getvalue()
+            self.assertIn("Unknown", output.split("\n")[0])
 
     def test_no_color(self):
         with io.StringIO() as buf, redirect_stdout(buf):
