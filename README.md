@@ -141,7 +141,7 @@ As you can see, it will also print the method signature(without ``self`` argumen
 #### Line numbers
 
 You can print execution info, including the function it's in, the file and the line number of the printing line.
-This is helpful for you to locate where is this object printed.
+This is helpful for you to locate where this object is printed.
 
 ```python
 def f():
