@@ -10,16 +10,16 @@ jobs:
   flake8-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.10"
       - name: Install flake8
         run: pip install flake8
       - name: Run flake8
-        run: flake8 --exclude src/objprint/executing.py src/ tests/ --count --ignore=W503 --max-line-length=127 --statistics
+        run: flake8 --exclude src/objprint/executing src/ tests/ --count --ignore=W503 --max-line-length=127 --statistics
       - name: Install mypy
         run: pip install mypy
       - name: Run mypy
-        run: mypy src/ --exclude src/objprint/executing\.py --follow-imports=skip
+        run: mypy src/ --exclude src/objprint/executing --follow-imports=skip
