@@ -18,8 +18,8 @@ jobs:
       - name: Install flake8
         run: pip install flake8
       - name: Run flake8
-        run: flake8 --exclude src/objprint/executing.py src/ tests/ --count --ignore=W503 --max-line-length=127 --statistics
+        run: flake8 --exclude src/objprint/executing src/ tests/ --count --ignore=W503 --max-line-length=127 --statistics
       - name: Install mypy
         run: pip install mypy
       - name: Run mypy
-        run: mypy src/ --exclude src/objprint/executing\.py --follow-imports=skip
+        run: mypy src/ --exclude src/objprint/executing --follow-imports=skip

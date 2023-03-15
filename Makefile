@@ -16,8 +16,8 @@ release:
 	python -m twine upload dist/*
 
 lint:
-	flake8 --exclude src/objprint/executing.py src/ tests/ --count --max-line-length=127 --ignore=W503
-	mypy src/ --exclude src/objprint/executing\.py --follow-imports=skip
+	flake8 --exclude src/objprint/executing src/ tests/ --count --max-line-length=127 --ignore=W503
+	mypy src/ --exclude src/objprint/executing --follow-imports=skip
 
 test:
 	python -m unittest

@@ -8,7 +8,7 @@ import sys
 import tokenize
 from types import FrameType
 from typing import List, Optional
-from .executing import Source  # type: ignore
+from .executing.executing import Source  # type: ignore
 
 
 class FrameAnalyzer:
