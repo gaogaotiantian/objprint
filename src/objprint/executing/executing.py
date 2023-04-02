@@ -69,7 +69,7 @@ else:
 
     def cache(func):
         # type: (Callable) -> Callable
-        d = {} # type: Dict[Tuple, Callable]        
+        d = {} # type: Dict[Tuple, Callable]
 
         @functools.wraps(func)
         def wrapper(*args):
@@ -1015,7 +1015,7 @@ def handle_jumps(instructions, original_instructions):
                     original_instructions, original_i, instructions, start
                 )
                 assert new_instructions is not None
-                instructions[new_i : new_i + 1] = new_instructions            
+                instructions[new_i : new_i + 1] = new_instructions
             else:
                 # Extract a section of original_instructions from original_i to return/raise
                 orig_section = []

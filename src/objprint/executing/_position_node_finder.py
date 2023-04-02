@@ -161,7 +161,7 @@ class PositionNodeFinder(object):
         # verify
         if self.decorator is None:
             self.verify(self.result, self.instruction(lasti))
-        else: 
+        else:
             assert_(self.decorator in self.result.decorator_list)
 
     def test_for_decorator(self, node: EnhancedAST, index: int) -> None:
