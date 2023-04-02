@@ -110,21 +110,16 @@ class ObjPrint:
                 if cfg.arg_name:
                     for arg, obj in zip(args, objs):
                         self._sys_print(arg)
-                        self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
+                        self._sys_print(self.objstr(obj, **kwargs), file=file)
                 else:
                     for obj in objs:
-                        self._sys_print(self.objstr(obj, call_frame=call_frame, **kwargs), file=file)
+                        self._sys_print(self.objstr(obj, **kwargs), file=file)
 
         if len(objs) == 1:
             return objs[0]
         return objs
 
-    def objstr(self, obj: Any, call_frame: Optional[FrameType] = None, **kwargs) -> str:
-        if call_frame is not None:
-            call_frame = inspect.currentframe()
-            if call_frame is not None:
-                call_frame = call_frame.f_back
-
+    def objstr(self, obj: Any, **kwargs) -> str:
         # If no color option is specified, don't use color
         if "color" not in kwargs:
             kwargs["color"] = False
