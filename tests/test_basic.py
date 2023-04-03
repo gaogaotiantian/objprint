@@ -5,6 +5,7 @@
 import io
 import os
 from contextlib import redirect_stdout
+
 from objprint import op, objstr, config, install
 from .objtest import ObjprintTestCase
 
