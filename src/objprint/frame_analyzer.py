@@ -102,3 +102,31 @@ class FrameAnalyzer:
         if next_line:
             lines.append(next_line)
         return lines
+
+    def return_object(self, frame: Optional[FrameType]) -> bool:
+        if frame is None:
+            print("frame is none")
+            return True
+        print(frame)
+        node: Optional[ast.AST] = Source.executing(frame).node
+        if node is None:
+            print("node is none")
+            return True
+        lineno = inspect.getlineno(frame)
+        stat = Source.for_frame(frame).statements_at_line(lineno)
+        print(stat)
+        for s in stat:
+            if node in s.value.args:
+                return True
+
+        try:
+            while frame:
+                filename = frame.f_code.co_filename
+                print(filename)
+                if filename == "<stdin>" or filename.startswith("<ipython-input"):
+                    return False  # This means the code is running is REPL
+                frame = frame.f_back
+        finally:
+            del frame
+
+        return False
