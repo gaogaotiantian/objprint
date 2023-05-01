@@ -105,28 +105,27 @@ class FrameAnalyzer:
 
     def return_object(self, frame: Optional[FrameType]) -> bool:
         if frame is None:
-            print("frame is none")
             return True
-        print(frame)
+
+        # check if environment is in REPL
+        try:
+            current_frame: Optional[FrameType] = frame
+            while current_frame:
+                filename = current_frame.f_code.co_filename
+                if filename == "<stdin>":
+                    return False  # This means the code is running is REPL
+                current_frame = current_frame.f_back
+        except AttributeError:
+            pass
+
+        # check if function call is a direct call whose output will not be used as an argument
         node: Optional[ast.AST] = Source.executing(frame).node
         if node is None:
-            print("node is none")
             return True
         lineno = inspect.getlineno(frame)
-        stat = Source.for_frame(frame).statements_at_line(lineno)
-        print(stat)
-        for s in stat:
-            if node in s.value.args:
-                return True
+        statement_node = Source.for_frame(frame).statements_at_line(lineno)
+        for stmt in statement_node:
+            if isinstance(stmt, ast.Expr) and node == stmt.value:
+                return False
 
-        try:
-            while frame:
-                filename = frame.f_code.co_filename
-                print(filename)
-                if filename == "<stdin>" or filename.startswith("<ipython-input"):
-                    return False  # This means the code is running is REPL
-                frame = frame.f_back
-        finally:
-            del frame
-
-        return False
+        return True

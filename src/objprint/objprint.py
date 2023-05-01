@@ -70,20 +70,13 @@ class ObjPrint:
         }
         self._sys_print = print
         self.frame_analyzer = FrameAnalyzer()
-        self.call_depth = 0
-        self.max_call_depth = 0
 
     def __call__(self, *objs: Any, file: Any = None, format: str = "string", **kwargs) -> Any:
-
-        self.call_depth += 1
-        self.max_call_depth += 1
-
         cfg = self._configs.overwrite(**kwargs)
         if cfg.enable:
             # if inspect.currentframe() returns None, set call_frame to None
             # and let the callees handle it
             call_frame = inspect.currentframe()
-
             if call_frame is not None:
                 call_frame = call_frame.f_back
 
@@ -344,17 +337,3 @@ class ObjPrint:
         else:
             s = ", ".join(elems)
             return f"{header}{s}{footer}"
-
-    def _return_object(self) -> bool:
-        frame = inspect.currentframe()
-
-        try:
-            while frame:
-                filename = frame.f_code.co_filename
-                if filename == "<stdin>" or filename.startswith("<ipython-input"):
-                    return False  # This means the code is running is REPL
-                frame = frame.f_back
-        finally:
-            del frame
-
-        return True
