@@ -106,19 +106,16 @@ class FrameAnalyzer:
     def return_object(self, frame: Optional[FrameType]) -> bool:
         if frame is None:
             return True
-
-        # check if environment is in REPL
         try:
             current_frame: Optional[FrameType] = frame
             while current_frame:
                 filename = current_frame.f_code.co_filename
                 if filename == "<stdin>" or filename == "<console>":
-                    return False  # This means the code is running is REPL
+                    return False
                 current_frame = current_frame.f_back
-        except AttributeError:
-            pass
+        except AttributeError:  # pragma: no cover
+            pass  # pragma: no cover
 
-        # check if function call is a direct call whose output will not be used as an argument
         node: Optional[ast.AST] = Source.executing(frame).node
         if node is None:
             return True
