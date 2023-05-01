@@ -2,8 +2,10 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+import code
 from contextlib import redirect_stdout
 import io
+from ipykernel.kernelbase import Kernel
 import json
 import re
 from unittest.mock import patch
@@ -316,3 +318,34 @@ class TestObjprint(ObjprintTestCase):
 
         with self.assertRaises(TypeError):
             op({}, exclude="invalid")
+
+    def test_interactive_console_return_value(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            console = code.InteractiveConsole()
+            console.push("from objprint import op")
+            console.push("op([1, 2, 3])")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n", output)
+
+    def test_jupyter_notebook_return_value(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            kernel = Kernel()
+            exec("from objprint import op")
+            exec("op([1,2,3])")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n", output)
+        
+        with io.StringIO() as buf, redirect_stdout(buf):
+            kernel = Kernel()
+            exec("from objprint import op")
+            exec("op(op([1,2,3]))")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n[1, 2, 3]\n", output)
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            kernel = Kernel()
+            exec("from objprint import op")
+            exec("b = op([1,2,3])")
+            exec("b")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n", output)

@@ -112,7 +112,7 @@ class FrameAnalyzer:
             current_frame: Optional[FrameType] = frame
             while current_frame:
                 filename = current_frame.f_code.co_filename
-                if filename == "<stdin>":
+                if filename == "<stdin>" or filename == "<console>":
                     return False  # This means the code is running is REPL
                 current_frame = current_frame.f_back
         except AttributeError:
