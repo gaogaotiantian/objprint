@@ -104,18 +104,14 @@ class FrameAnalyzer:
         return lines
 
     def return_object(self, frame: Optional[FrameType]) -> bool:
+        current_frame = frame
+        while current_frame:
+            filename = current_frame.f_code.co_filename
+            if filename in ["<stdin>", "<console>"]:
+                return False
+            current_frame = current_frame.f_back
         if frame is None:
             return True
-        try:
-            current_frame: Optional[FrameType] = frame
-            while current_frame:
-                filename = current_frame.f_code.co_filename
-                if filename == "<stdin>" or filename == "<console>":
-                    return False
-                current_frame = current_frame.f_back
-        except AttributeError:  # pragma: no cover
-            pass  # pragma: no cover
-
         node: Optional[ast.AST] = Source.executing(frame).node
         if node is None:
             return True
