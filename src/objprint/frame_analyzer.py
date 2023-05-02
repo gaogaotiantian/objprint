@@ -102,3 +102,23 @@ class FrameAnalyzer:
         if next_line:
             lines.append(next_line)
         return lines
+
+    def return_object(self, frame: Optional[FrameType]) -> bool:
+        if frame is None:
+            return True
+        current_frame: Optional[FrameType] = frame
+        while current_frame:
+            filename = current_frame.f_code.co_filename
+            if filename in ["<stdin>", "<console>"]:
+                return False
+            current_frame = current_frame.f_back
+
+        node: Optional[ast.AST] = Source.executing(frame).node
+        if node is None:
+            return True
+        lineno = inspect.getlineno(frame)
+        statement_node = Source.for_frame(frame).statements_at_line(lineno)
+        for stmt in statement_node:
+            if isinstance(stmt, ast.Expr) and node == stmt.value:
+                return False
+        return True

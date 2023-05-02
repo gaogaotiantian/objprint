@@ -2,6 +2,7 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+import code
 from contextlib import redirect_stdout
 import io
 import json
@@ -316,3 +317,31 @@ class TestObjprint(ObjprintTestCase):
 
         with self.assertRaises(TypeError):
             op({}, exclude="invalid")
+
+    def test_console_return_value(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            console = code.InteractiveConsole()
+            console.push("from objprint import op")
+            console.push("op([1, 2, 3])")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n", output)
+
+    def test_exec_return_value(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            exec("from objprint import op")
+            exec("op([1,2,3])")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n", output)
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            exec("from objprint import op")
+            exec("op(op([1,2,3]))")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n[1, 2, 3]\n", output)
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            exec("from objprint import op")
+            exec("b = op([1,2,3])")
+            exec("print(b)")
+            output = buf.getvalue()
+        self.assertEqual("[1, 2, 3]\n[1, 2, 3]\n", output)

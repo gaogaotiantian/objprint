@@ -114,10 +114,12 @@ class ObjPrint:
                 else:
                     for obj in objs:
                         self._sys_print(self.objstr(obj, **kwargs), file=file)
+            if self.frame_analyzer.return_object(call_frame):
+                return objs[0] if len(objs) == 1 else objs
+            else:
+                return None
 
-        if len(objs) == 1:
-            return objs[0]
-        return objs
+        return objs[0] if len(objs) == 1 else objs
 
     def objstr(self, obj: Any, **kwargs) -> str:
         # If no color option is specified, don't use color
