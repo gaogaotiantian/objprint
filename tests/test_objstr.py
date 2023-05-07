@@ -173,7 +173,7 @@ class TestObjStr(ObjprintTestCase):
         self.assertEqual(s.count("t2"), 3)
 
     def test_number_format(self):
-        t1  = [11,12,13]
+        t1 = [11, 12, 13]
         s_bin = objstr(t1, number_format='b')
         s_oct = objstr(t1, number_format='o')
         s_hex = objstr(t1, number_format='h')
