@@ -32,7 +32,7 @@ class _PrintConfig:
     print_methods: bool = False
     skip_recursion: bool = True
     honor_existing: bool = True
-    number_format: str = 'd'
+    number_format: str = 'decimal'
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
