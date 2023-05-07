@@ -171,3 +171,12 @@ class TestObjStr(ObjprintTestCase):
         self.assertEqual(s.count("t2"), 1)
         s = objstr(t2, skip_recursion=False, depth=6)
         self.assertEqual(s.count("t2"), 3)
+
+    def test_number_format(self):
+        t1  = [11,12,13]
+        s_bin = objstr(t1, number_format='b')
+        s_oct = objstr(t1, number_format='o')
+        s_hex = objstr(t1, number_format='h')
+        self.assertEqual(s_bin, "[0b1011, 0b1100, 0b1101]")
+        self.assertEqual(s_oct, "[0o13, 0o14, 0o15]")
+        self.assertEqual(s_hex, "[0xb, 0xc, 0xd]")

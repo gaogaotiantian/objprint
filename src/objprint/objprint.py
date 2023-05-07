@@ -32,6 +32,7 @@ class _PrintConfig:
     print_methods: bool = False
     skip_recursion: bool = True
     honor_existing: bool = True
+    number_format: str = 'd'
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -133,9 +134,9 @@ class ObjPrint:
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
-        elif isinstance(obj, int) or \
-                isinstance(obj, float) or \
-                obj is None:
+        elif isinstance(obj, int):
+            return self._get_number_format(obj, cfg)
+        elif isinstance(obj, float) or obj is None:
             return str(obj)
         elif isinstance(obj, FunctionType):
             return f"<function {obj.__name__}>"
@@ -149,7 +150,7 @@ class ObjPrint:
             memo = memo.copy()
             memo.add(id(obj))
 
-        if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
+        if isinstance(obj, (list, tuple, set)):
             elems = (f"{self._objstr(val, memo, indent_level + 1, cfg)}" for val in obj)
         elif isinstance(obj, dict):
             items = [(key, val) for key, val in obj.items()]
@@ -337,3 +338,15 @@ class ObjPrint:
         else:
             s = ", ".join(elems)
             return f"{header}{s}{footer}"
+
+    def _get_number_format(self, number: int, cfg: _PrintConfig) -> str:
+        if cfg.number_format in ['d', 'dec', 'decimal']:
+            return str(number)
+        elif cfg.number_format in ['h', 'hex', 'hexadecimal']:
+            return hex(number)
+        elif cfg.number_format in ['b', 'bin', 'binary']:
+            return bin(number)
+        elif cfg.number_format in ['o', 'oct', 'octal']:
+            return oct(number)
+        else:
+            return str(number)
