@@ -7,7 +7,7 @@ import itertools
 import json
 import re
 from types import FunctionType, FrameType
-from typing import Any, Iterable, List, Optional, Set, TypeVar
+from typing import Any, Iterable, List, Optional, Set, TypeVar, Callable, Type
 
 from .color_util import COLOR, set_color
 from .frame_analyzer import FrameAnalyzer
@@ -70,6 +70,7 @@ class ObjPrint:
         }
         self._sys_print = print
         self.frame_analyzer = FrameAnalyzer()
+        self.type_formatter = {}
 
     def __call__(self, *objs: Any, file: Any = None, format: str = "string", **kwargs) -> Any:
         cfg = self._configs.overwrite(**kwargs)
@@ -130,6 +131,11 @@ class ObjPrint:
         return self._objstr(obj, memo, indent_level=0, cfg=cfg)
 
     def _objstr(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig) -> str:
+        # If a custom formatter is registered for the object's type, use it directly
+        obj_type = type(obj)
+        if obj_type in self.type_formatter:
+            return self.type_formatter[obj_type](obj)
+
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
@@ -279,6 +285,23 @@ class ObjPrint:
             return " " * (indent_level * cfg.indent) + line
         return [" " * (indent_level * cfg.indent) + ll for ll in line]
 
+    def register(
+            self,
+            obj_type: Type[Any],
+            obj_formatter: Callable[[Any], str]) -> None:
+        self._validate_formatter(obj_type, obj_formatter)
+        self.type_formatter[obj_type] = obj_formatter
+
+    def register_type(self, obj_type: Type[Any]):
+        def wrapper(obj_formatter: Callable[[Any], str]) -> Callable[[Any], str]:
+            self.register(obj_type, obj_formatter)
+            return obj_formatter
+        return wrapper
+
+    def unregister(self, obj_type: type) -> None:
+        if obj_type in self.type_formatter:
+            del self.type_formatter[obj_type]
+
     def _get_header_footer(self, obj: Any, cfg: _PrintConfig):
         obj_type = type(obj)
         if obj_type in self.indicator_map:
@@ -337,3 +360,24 @@ class ObjPrint:
         else:
             s = ", ".join(elems)
             return f"{header}{s}{footer}"
+
+    def _validate_formatter(
+            self,
+            obj_type: Type[Any],
+            obj_formatter: Callable[[Any], str]) -> None:
+        if inspect.isbuiltin(obj_formatter):
+            return
+
+        # check signature for custom formatter function
+        # if type annotation is provided, then check whether they meet requirements
+        signature = inspect.signature(obj_formatter)
+        parameters = list(signature.parameters.values())
+
+        if len(parameters) != 1:  # pragma: no cover
+            raise TypeError("The provided formatter must accept exactly one argument")
+
+        if parameters[0].annotation not in [inspect.Parameter.empty, obj_type]:  # pragma: no cover
+            raise TypeError("The provided formatter's argument type must match the specified obj_type")
+
+        if signature.return_annotation not in [inspect.Parameter.empty, str]:  # pragma: no cover
+            raise TypeError("The provided formatter must return a string")

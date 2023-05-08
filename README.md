@@ -285,6 +285,31 @@ that match exclusive check.
 
 ```attr_pattern```, ```include``` and ```exclude``` arguments work on ```objprint```, ```objstr``` and ```@add_objprint```.
 
+### Register Custom Type Formatter
+
+You can also customize how certain types of objects are displayed by registering a custom formatter function to transform an object of a specific type into a string. For example, you can print all integers in hexadecimal format by registering the ```hex()``` function for the ```int``` data type. You can always unregister the formatter function if you no longer want to use it.
+
+```python
+from objprint import op
+
+op.register(int, hex)
+op(10)  # prints 0xa
+op.unregister(int)
+op(10)  # prints 10
+```
+
+Alternatively, you can use a decorator to register a custom formatter function:
+
+```python
+@op.register_type(str)
+def custom_formatter(obj: str):
+    return f"custom_print: {obj}"
+```
+
+```Objprint``` always prioritizes custom formatters over default formatters and will use the registered functions if they exist. If type annotations are provided in the custom formatter functions, ```Objprint``` will also perform a validation check to ensure the provided function accepts the specified data type as input and returns a string.
+
+Note that when you register a function with ```op```, the result for ```objprint```, ```objstr``` will also be affected in the same way.
+
 ### config
 
 ```objprint``` formats the output based on some configs

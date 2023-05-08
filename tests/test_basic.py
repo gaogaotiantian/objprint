@@ -63,3 +63,23 @@ class TestBasic(ObjprintTestCase):
         with io.StringIO() as buf, redirect_stdout(buf):
             op(A())
             self.assertTrue(len(buf.getvalue()) > 0)
+
+    def test_register(self):
+        a = [10, 13, 16]
+        op.register(int, hex)
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(a)
+            self.assertEqual(buf.getvalue(), "[0xa, 0xd, 0x10]\n")
+
+        op.unregister(int)
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(a)
+            self.assertEqual(buf.getvalue(), "[10, 13, 16]\n")
+
+        @op.register_type(str)
+        def custom_formatter(obj: str) -> str:
+            return f"custom_format: {obj}"
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op('string')
+            self.assertEqual(buf.getvalue(), "custom_format: string\n")
+        op.unregister(str)
