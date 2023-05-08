@@ -298,7 +298,7 @@ class ObjPrint:
             return obj_formatter
         return wrapper
 
-    def unregister(self, obj_type: type) -> None:
+    def unregister(self, obj_type: Type[Any]) -> None:
         if obj_type in self.type_formatter:
             del self.type_formatter[obj_type]
 
