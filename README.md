@@ -338,6 +338,18 @@ Print B with Base Class Formatter
 >
 ```
 
+If you want to inspect all the registered functions, you can use the ```list_formatter()``` method.
+
+```python
+op.list_formatter()
+```
+
+```
+{
+  BaseClass : base_formatter()
+}
+```
+
 Please note that registering a formatter function with ```op``` will affect the output of ```objprint``` and ```objstr``` methods in the same way. The changes will persist until the formatter is unregistered or ```Objprint``` is reset.
 
 ### config

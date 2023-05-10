@@ -90,7 +90,7 @@ class TestBasic(ObjprintTestCase):
 
         with io.StringIO() as buf, redirect_stdout(buf):
             op.list_formatter()
-            self.assertEqual(buf.getvalue(), "{\nstr : custom_formatter()\n}\n")
+            self.assertEqual(buf.getvalue(), "{\n    str : custom_formatter()\n}\n")
         op.unregister_formatter()
 
         with io.StringIO() as buf, redirect_stdout(buf):

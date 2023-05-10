@@ -308,11 +308,11 @@ class ObjPrint:
                     del self.type_formatter[obj_type]
 
     def list_formatter(self, print_list: bool = True) -> Optional[dict]:
-        if print_list:
+        if print_list and self._configs.enable:
             formatter_content = ["{"]
             for obj_type, obj_formatter in self.type_formatter.items():
                 formatter_content.append(
-                    f"{obj_type.__name__} : "
+                    f"    {obj_type.__name__} : "
                     f"{obj_formatter.__name__}()")
             formatter_content.append("}")
             formatter_str = '\n'.join(formatter_content)
