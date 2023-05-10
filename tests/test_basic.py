@@ -64,22 +64,45 @@ class TestBasic(ObjprintTestCase):
             op(A())
             self.assertTrue(len(buf.getvalue()) > 0)
 
-    def test_register(self):
+    def test_formatter(self):
         a = [10, 13, 16]
-        op.register(int, hex)
+        op.register_formatter(int, hex)
         with io.StringIO() as buf, redirect_stdout(buf):
             op(a)
             self.assertEqual(buf.getvalue(), "[0xa, 0xd, 0x10]\n")
 
-        op.unregister(int)
+        op.register_formatter(float, lambda x: f"Float: {round(x,3)}")
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(3.14159)
+            self.assertEqual(buf.getvalue(), "Float: 3.142\n")
+        op.unregister_formatter(int, float)
+
         with io.StringIO() as buf, redirect_stdout(buf):
             op(a)
             self.assertEqual(buf.getvalue(), "[10, 13, 16]\n")
 
-        @op.register_type(str)
+        @op.register_formatter(str)
         def custom_formatter(obj: str) -> str:
             return f"custom_format: {obj}"
         with io.StringIO() as buf, redirect_stdout(buf):
             op('string')
             self.assertEqual(buf.getvalue(), "custom_format: string\n")
-        op.unregister(str)
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op.list_formatter()
+            self.assertEqual(buf.getvalue(), "{\nstr : custom_formatter()\n}\n")
+        op.unregister_formatter()
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            output = op.list_formatter()
+            self.assertEqual(buf.getvalue(), "{\n}\n")
+            self.assertEqual(output, {})
+
+    def test_invalid_formatter(self):
+        self.assertRaises(TypeError, lambda: op.register_formatter(1, hex))
+        self.assertRaises(TypeError, lambda: op.register_formatter(int, lambda x, y: str(x)))
+
+        def invalid_formatter(obj: int) -> int:
+            return obj
+        self.assertRaises(TypeError, lambda: op.register_formatter(str, invalid_formatter))
+        self.assertRaises(TypeError, lambda: op.register_formatter(int, invalid_formatter))

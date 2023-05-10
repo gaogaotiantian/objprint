@@ -7,7 +7,7 @@ import itertools
 import json
 import re
 from types import FunctionType, FrameType
-from typing import Any, Iterable, List, Optional, Set, TypeVar, Callable, Type
+from typing import Any, Callable, Iterable, List, Optional, Set, TypeVar, Type
 
 from .color_util import COLOR, set_color
 from .frame_analyzer import FrameAnalyzer
@@ -32,6 +32,7 @@ class _PrintConfig:
     print_methods: bool = False
     skip_recursion: bool = True
     honor_existing: bool = True
+    inherit: bool = True
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -132,16 +133,15 @@ class ObjPrint:
 
     def _objstr(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig) -> str:
         # If a custom formatter is registered for the object's type, use it directly
-        obj_type = type(obj)
-        if obj_type in self.type_formatter:
-            return self.type_formatter[obj_type](obj)
-
+        if cfg.inherit and self.type_formatter:
+            obj_type = type(obj)
+            for cls in obj_type.__mro__:
+                if cls in self.type_formatter:
+                    return self.type_formatter[cls](obj)
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
-        elif isinstance(obj, int) or \
-                isinstance(obj, float) or \
-                obj is None:
+        elif isinstance(obj, (int, float)) or obj is None:
             return str(obj)
         elif isinstance(obj, FunctionType):
             return f"<function {obj.__name__}>"
@@ -155,7 +155,7 @@ class ObjPrint:
             memo = memo.copy()
             memo.add(id(obj))
 
-        if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
+        if isinstance(obj, (list, tuple, set)):
             elems = (f"{self._objstr(val, memo, indent_level + 1, cfg)}" for val in obj)
         elif isinstance(obj, dict):
             items = [(key, val) for key, val in obj.items()]
@@ -285,22 +285,45 @@ class ObjPrint:
             return " " * (indent_level * cfg.indent) + line
         return [" " * (indent_level * cfg.indent) + ll for ll in line]
 
-    def register(
-            self,
-            obj_type: Type[Any],
-            obj_formatter: Callable[[Any], str]) -> None:
+    def register_formatter(
+        self,
+        obj_type: Type[Any],
+        obj_formatter: Optional[Callable[[Any], str]] = None
+    ) -> Optional[Callable[[Callable[[Any], str]], Callable[[Any], str]]]:
+        if obj_formatter is None:
+            def wrapper(obj_formatter: Callable[[Any], str]) -> Callable[[Any], str]:
+                self.register_formatter(obj_type, obj_formatter)
+                return obj_formatter
+            return wrapper
         self._validate_formatter(obj_type, obj_formatter)
         self.type_formatter[obj_type] = obj_formatter
+        return None
 
-    def register_type(self, obj_type: Type[Any]):
-        def wrapper(obj_formatter: Callable[[Any], str]) -> Callable[[Any], str]:
-            self.register(obj_type, obj_formatter)
-            return obj_formatter
-        return wrapper
+    def unregister_formatter(self, *obj_types: Type[Any]) -> None:
+        if not obj_types:
+            self.type_formatter.clear()
+        else:
+            for obj_type in obj_types:
+                if obj_type in self.type_formatter:
+                    del self.type_formatter[obj_type]
 
-    def unregister(self, obj_type: Type[Any]) -> None:
-        if obj_type in self.type_formatter:
-            del self.type_formatter[obj_type]
+    def list_formatter(self, print_list: bool = True) -> Optional[dict]:
+        if print_list:
+            formatter_content = ["{"]
+            for obj_type, obj_formatter in self.type_formatter.items():
+                formatter_content.append(
+                    f"{obj_type.__name__} : "
+                    f"{obj_formatter.__name__}()")
+            formatter_content.append("}")
+            formatter_str = '\n'.join(formatter_content)
+            self._sys_print(formatter_str)
+        call_frame = inspect.currentframe()
+        if call_frame is not None:
+            call_frame = call_frame.f_back
+        if self.frame_analyzer.return_object(call_frame):
+            return self.type_formatter
+        else:
+            return None
 
     def _get_header_footer(self, obj: Any, cfg: _PrintConfig):
         obj_type = type(obj)
@@ -365,6 +388,9 @@ class ObjPrint:
             self,
             obj_type: Type[Any],
             obj_formatter: Callable[[Any], str]) -> None:
+        if not isinstance(obj_type, type):
+            raise TypeError("obj_type must be a type")
+
         if inspect.isbuiltin(obj_formatter):
             return
 
@@ -373,11 +399,11 @@ class ObjPrint:
         signature = inspect.signature(obj_formatter)
         parameters = list(signature.parameters.values())
 
-        if len(parameters) != 1:  # pragma: no cover
+        if len(parameters) != 1:
             raise TypeError("The provided formatter must accept exactly one argument")
 
-        if parameters[0].annotation not in [inspect.Parameter.empty, obj_type]:  # pragma: no cover
+        if parameters[0].annotation not in [inspect.Parameter.empty, obj_type]:
             raise TypeError("The provided formatter's argument type must match the specified obj_type")
 
-        if signature.return_annotation not in [inspect.Parameter.empty, str]:  # pragma: no cover
+        if signature.return_annotation not in [inspect.Parameter.empty, str]:
             raise TypeError("The provided formatter must return a string")

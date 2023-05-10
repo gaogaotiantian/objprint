@@ -287,28 +287,58 @@ that match exclusive check.
 
 ### Register Custom Type Formatter
 
-You can also customize how certain types of objects are displayed by registering a custom formatter function to transform an object of a specific type into a string. For example, you can print all integers in hexadecimal format by registering the ```hex()``` function for the ```int``` data type. You can always unregister the formatter function if you no longer want to use it.
+You can also customize how certain types of objects are displayed by registering a custom formatter function to transform an object of a specific type into a string. For example, you can print all integers in hexadecimal format by registering the ```hex()``` function for the ```int``` data type, or registering a custom ```lambda``` function. You can always unregister the formatter function if you no longer want to use it with ```unregister_formatter()```, it supports unregistering multiple data types at the same time. And if no input argument is provided to the function, it will clear all the registered functions.
 
 ```python
 from objprint import op
 
-op.register(int, hex)
+op.register_formatter(int, hex)
+op.register_formatter(float, lambda x: f"{round(x, 3)}")
 op(10)  # prints 0xa
-op.unregister(int)
+op(3.14159)  # prints 3.142
+op.unregister_formatter(int, float)
 op(10)  # prints 10
+op(3.14159)  # prints 3.14159
 ```
 
-Alternatively, you can use a decorator to register a custom formatter function:
+Alternatively, you can also register a custom formatter function using a decorator:
 
 ```python
-@op.register_type(str)
+@op.register_formatter(str)
 def custom_formatter(obj: str):
     return f"custom_print: {obj}"
+
+# This would clear all the registered formatters 
+op.unregister_formatter()
 ```
 
 ```Objprint``` always prioritizes custom formatters over default formatters and will use the registered functions if they exist. If type annotations are provided in the custom formatter functions, ```Objprint``` will also perform a validation check to ensure the provided function accepts the specified data type as input and returns a string.
 
-Note that when you register a function with ```op```, the result for ```objprint```, ```objstr``` will also be affected in the same way.
+The ```op``` function call accepts an ```inherit``` argument for situations involving class inheritance. By setting ```inherit``` to ```True```, a formatter registered for a base class will also be applied to its derived classes, if the formatters for the derived classes are not registered. If a derived class inherits from multiple base classes with registered formatters, the choice of formatter follows the Method Resolution Order (MRO) of the derived class.
+
+```python
+class BaseClass:
+    name = 'A'
+
+class DerivedClass(BaseClass):
+    name = 'B'
+
+@op.register_formatter(BaseClass)
+def base_formatter(obj: BaseClass) -> str:
+    return f'Print {obj.name} with Base Class Formatter'
+
+op(DerivedClass(), inherit=True)
+op(DerivedClass(), inherit=False)
+```
+
+```
+Print B with Base Class Formatter
+<DerivedClass 0x7fb42e8216a0
+  .name = 'B'
+>
+```
+
+Please note that registering a formatter function with ```op``` will affect the output of ```objprint``` and ```objstr``` methods in the same way. The changes will persist until the formatter is unregistered or ```Objprint``` is reset.
 
 ### config
 
@@ -318,6 +348,7 @@ Note that when you register a function with ```op```, the result for ```objprint
 * ``enable(True)`` - whether to print, it's like a switch
 * ``depth(100)`` - how deep ```objprint``` goes into nested data structures
 * ``indent(2)`` - the indentation
+* ``inherit(True)`` - whether a derived class should inherit the formatter of its base class
 * ``width(80)`` - the maximum width a data structure will be presented as a single line
 * ``elements(-1)`` - the maximum number of elements that will be displayed, ``-1`` means no restriction
 * ``color(True)`` - whether to use colored scheme
