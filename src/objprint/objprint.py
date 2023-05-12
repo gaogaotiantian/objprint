@@ -2,6 +2,7 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+from collections import namedtuple
 import inspect
 import itertools
 import json
@@ -32,7 +33,6 @@ class _PrintConfig:
     print_methods: bool = False
     skip_recursion: bool = True
     honor_existing: bool = True
-    inherit: bool = True
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -60,6 +60,8 @@ class _PrintConfig:
 
 
 class ObjPrint:
+    FormatterInfo = namedtuple('FormatterInfo', ['formatter', 'inherit'])
+
     def __init__(self):
         self._configs = _PrintConfig()
 
@@ -133,15 +135,20 @@ class ObjPrint:
 
     def _objstr(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig) -> str:
         # If a custom formatter is registered for the object's type, use it directly
-        if cfg.inherit and self.type_formatter:
+        if self.type_formatter:
             obj_type = type(obj)
             for cls in obj_type.__mro__:
-                if cls in self.type_formatter:
-                    return self.type_formatter[cls](obj)
+                if cls in self.type_formatter and (
+                    cls == obj_type or self.type_formatter[cls].inherit
+                ):
+                    return self.type_formatter[cls].formatter(obj)
+
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
-        elif isinstance(obj, (int, float)) or obj is None:
+        elif isinstance(obj, int) or \
+                isinstance(obj, float) or \
+                obj is None:
             return str(obj)
         elif isinstance(obj, FunctionType):
             return f"<function {obj.__name__}>"
@@ -155,7 +162,7 @@ class ObjPrint:
             memo = memo.copy()
             memo.add(id(obj))
 
-        if isinstance(obj, (list, tuple, set)):
+        if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
             elems = (f"{self._objstr(val, memo, indent_level + 1, cfg)}" for val in obj)
         elif isinstance(obj, dict):
             items = [(key, val) for key, val in obj.items()]
@@ -288,15 +295,20 @@ class ObjPrint:
     def register_formatter(
         self,
         obj_type: Type[Any],
-        obj_formatter: Optional[Callable[[Any], str]] = None
+        obj_formatter: Optional[Callable[[Any], str]] = None,
+        inherit: bool = True
     ) -> Optional[Callable[[Callable[[Any], str]], Callable[[Any], str]]]:
         if obj_formatter is None:
             def wrapper(obj_formatter: Callable[[Any], str]) -> Callable[[Any], str]:
-                self.register_formatter(obj_type, obj_formatter)
+                self.register_formatter(obj_type, obj_formatter, inherit)
                 return obj_formatter
             return wrapper
-        self._validate_formatter(obj_type, obj_formatter)
-        self.type_formatter[obj_type] = obj_formatter
+
+        if not isinstance(obj_type, type):
+            raise TypeError("obj_type must be a type")
+
+        fmt_info = self.FormatterInfo(formatter=obj_formatter, inherit=inherit)
+        self.type_formatter[obj_type] = fmt_info
         return None
 
     def unregister_formatter(self, *obj_types: Type[Any]) -> None:
@@ -307,23 +319,8 @@ class ObjPrint:
                 if obj_type in self.type_formatter:
                     del self.type_formatter[obj_type]
 
-    def list_formatter(self, print_list: bool = True) -> Optional[dict]:
-        if print_list and self._configs.enable:
-            formatter_content = ["{"]
-            for obj_type, obj_formatter in self.type_formatter.items():
-                formatter_content.append(
-                    f"    {obj_type.__name__} : "
-                    f"{obj_formatter.__name__}()")
-            formatter_content.append("}")
-            formatter_str = '\n'.join(formatter_content)
-            self._sys_print(formatter_str)
-        call_frame = inspect.currentframe()
-        if call_frame is not None:
-            call_frame = call_frame.f_back
-        if self.frame_analyzer.return_object(call_frame):
-            return self.type_formatter
-        else:
-            return None
+    def get_formatter(self) -> dict:
+        return self.type_formatter
 
     def _get_header_footer(self, obj: Any, cfg: _PrintConfig):
         obj_type = type(obj)
@@ -383,27 +380,3 @@ class ObjPrint:
         else:
             s = ", ".join(elems)
             return f"{header}{s}{footer}"
-
-    def _validate_formatter(
-            self,
-            obj_type: Type[Any],
-            obj_formatter: Callable[[Any], str]) -> None:
-        if not isinstance(obj_type, type):
-            raise TypeError("obj_type must be a type")
-
-        if inspect.isbuiltin(obj_formatter):
-            return
-
-        # check signature for custom formatter function
-        # if type annotation is provided, then check whether they meet requirements
-        signature = inspect.signature(obj_formatter)
-        parameters = list(signature.parameters.values())
-
-        if len(parameters) != 1:
-            raise TypeError("The provided formatter must accept exactly one argument")
-
-        if parameters[0].annotation not in [inspect.Parameter.empty, obj_type]:
-            raise TypeError("The provided formatter's argument type must match the specified obj_type")
-
-        if signature.return_annotation not in [inspect.Parameter.empty, str]:
-            raise TypeError("The provided formatter must return a string")

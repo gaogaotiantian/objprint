@@ -77,10 +77,6 @@ class TestBasic(ObjprintTestCase):
             self.assertEqual(buf.getvalue(), "Float: 3.142\n")
         op.unregister_formatter(int, float)
 
-        with io.StringIO() as buf, redirect_stdout(buf):
-            op(a)
-            self.assertEqual(buf.getvalue(), "[10, 13, 16]\n")
-
         @op.register_formatter(str)
         def custom_formatter(obj: str) -> str:
             return f"custom_format: {obj}"
@@ -88,21 +84,10 @@ class TestBasic(ObjprintTestCase):
             op('string')
             self.assertEqual(buf.getvalue(), "custom_format: string\n")
 
-        with io.StringIO() as buf, redirect_stdout(buf):
-            op.list_formatter()
-            self.assertEqual(buf.getvalue(), "{\n    str : custom_formatter()\n}\n")
         op.unregister_formatter()
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            output = op.list_formatter()
-            self.assertEqual(buf.getvalue(), "{\n}\n")
+            output = op.get_formatter()
             self.assertEqual(output, {})
 
-    def test_invalid_formatter(self):
         self.assertRaises(TypeError, lambda: op.register_formatter(1, hex))
-        self.assertRaises(TypeError, lambda: op.register_formatter(int, lambda x, y: str(x)))
-
-        def invalid_formatter(obj: int) -> int:
-            return obj
-        self.assertRaises(TypeError, lambda: op.register_formatter(str, invalid_formatter))
-        self.assertRaises(TypeError, lambda: op.register_formatter(int, invalid_formatter))

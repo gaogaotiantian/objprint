@@ -358,7 +358,7 @@ class TestObjprint(ObjprintTestCase):
             return obj.name
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            op(DerivedClass(), inherit=True)
+            op(DerivedClass())
             output = buf.getvalue()
         self.assertEqual("B\n", output)
 
@@ -367,7 +367,7 @@ class TestObjprint(ObjprintTestCase):
             return f"DerivedClass, {obj.name}"
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            op(DerivedClass(), inherit=True)
+            op(DerivedClass())
             output = buf.getvalue()
         self.assertEqual("DerivedClass, B\n", output)
 
