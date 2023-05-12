@@ -359,7 +359,7 @@ With ```inherit=False```, derived class will use the default formatter provided 
 def base_formatter(obj: BaseClass) -> str:
     return f'Print {obj.name} with Base Class Formatter'
 
-op(DerivedClass(), inherit=False)
+op(DerivedClass())
 ```
 
 ```
