@@ -310,7 +310,7 @@ def custom_formatter(obj: str):
 op("hi")  # prints custom_print: hi
 ```
 
-During registration, ```objprint``` will examined the specified object type, and raise a ```TypeError``` if an invalid object type is provided.
+During registration, ```objprint``` will examine the specified object type, and raise a ```TypeError``` if an invalid object type is provided.
 
 When you finish using the custom formatters, you can unregister them with ```unregister_formatter()```.
 
