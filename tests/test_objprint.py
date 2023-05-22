@@ -345,3 +345,30 @@ class TestObjprint(ObjprintTestCase):
             exec("print(b)")
             output = buf.getvalue()
         self.assertEqual("[1, 2, 3]\n[1, 2, 3]\n", output)
+
+    def test_inherit(self):
+        class BaseClass:
+            name = 'A'
+
+        class DerivedClass(BaseClass):
+            name = 'B'
+
+        @op.register_formatter(BaseClass)
+        def base_formatter(obj: BaseClass) -> str:
+            return obj.name
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(DerivedClass())
+            output = buf.getvalue()
+        self.assertEqual("B\n", output)
+
+        @op.register_formatter(DerivedClass)
+        def derived_formatter(obj: DerivedClass) -> str:
+            return f"DerivedClass, {obj.name}"
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(DerivedClass())
+            output = buf.getvalue()
+        self.assertEqual("DerivedClass, B\n", output)
+
+        op.unregister_formatter()

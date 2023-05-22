@@ -63,3 +63,31 @@ class TestBasic(ObjprintTestCase):
         with io.StringIO() as buf, redirect_stdout(buf):
             op(A())
             self.assertTrue(len(buf.getvalue()) > 0)
+
+    def test_formatter(self):
+        a = [10, 13, 16]
+        op.register_formatter(int, hex)
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(a)
+            self.assertEqual(buf.getvalue(), "[0xa, 0xd, 0x10]\n")
+
+        op.register_formatter(float, lambda x: f"Float: {round(x,3)}")
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(3.14159)
+            self.assertEqual(buf.getvalue(), "Float: 3.142\n")
+        op.unregister_formatter(int, float)
+
+        @op.register_formatter(str)
+        def custom_formatter(obj: str) -> str:
+            return f"custom_format: {obj}"
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op('string')
+            self.assertEqual(buf.getvalue(), "custom_format: string\n")
+
+        op.unregister_formatter()
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            output = op.get_formatter()
+            self.assertEqual(output, {})
+
+        self.assertRaises(TypeError, lambda: op.register_formatter(1, hex))

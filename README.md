@@ -285,6 +285,104 @@ that match exclusive check.
 
 ```attr_pattern```, ```include``` and ```exclude``` arguments work on ```objprint```, ```objstr``` and ```@add_objprint```.
 
+### Register Custom Type Formatter
+
+You can also customize how certain types of objects are displayed by registering a custom formatter function to transform an object of a specific type into a string. 
+
+For example, you can print all integers in hexadecimal format by registering the ```hex()``` function for the ```int``` data type, or registering a custom ```lambda``` function. 
+
+```python
+from objprint import op
+
+op.register_formatter(int, hex)
+op.register_formatter(float, lambda x: f"{round(x, 3)}")
+op(10)  # prints 0xa
+op(3.14159)  # prints 3.142
+```
+
+Alternatively, you can also register a custom formatter function using a decorator:
+
+```python
+@op.register_formatter(str)
+def custom_formatter(obj: str):
+    return f"custom_print: {obj}"
+
+op("hi")  # prints custom_print: hi
+```
+
+During registration, ```objprint``` will examine the specified object type, and raise a ```TypeError``` if an invalid object type is provided.
+
+When you finish using the custom formatters, you can unregister them with ```unregister_formatter()```.
+
+```python
+op.unregister_formatter(int, float, str)
+op(10)  # prints 10
+op(3.14159)  # prints 3.14159
+op("hi")  # prints hi
+```
+
+Or you can unregister everything by passing no argument to it.
+
+```python
+op.unregister_formatter()
+```
+
+The ```register_formatter()``` function also accepts an ```inherit``` argument (default ```True```) to dictate if the registered formatter should also apply to any derived classes of the object type.
+
+```python
+class BaseClass:
+    name = 'A'
+
+class DerivedClass(BaseClass):
+    name = 'B'
+```
+
+With ```inherit=True```, derived class will share the same formatter registered under base class. 
+
+```python
+def base_formatter(obj: BaseClass) -> str:
+    return f'Print {obj.name} with Base Class Formatter'
+
+op.register_formatter(BaseClass, base_formatter, inherit=True)
+
+op(DerivedClass())
+```
+
+```
+Print B with Base Class Formatter
+```
+
+With ```inherit=False```, derived class will use the default formatter provided by ```objprint```. 
+
+```python
+@op.register_formatter(BaseClass, inherit=False)
+def base_formatter(obj: BaseClass) -> str:
+    return f'Print {obj.name} with Base Class Formatter'
+
+op(DerivedClass())
+```
+
+```
+<DerivedClass 0x7fb42e8216a0
+  .name = 'B'
+>
+```
+
+If a derived class inherits from multiple base classes, each with a registered formatter, the chosen formatter adheres to the Method Resolution Order (MRO) of the derived class.
+
+To check all the registered functions and their inheritance status, you can use the ```get_formatter()``` method. It returns a dictionary-like object that you can print for easy inspection.
+
+```python
+fmts = op.get_formatter()
+print(fmts)
+```
+
+```
+{<class '__main__.BaseClass'>: FormatterInfo(formatter=<function base_formatter at 0x7feaf33d1f70>, inherit=False)}
+```
+
+Please note that registering a formatter function with ```op``` will affect the output of ```objprint``` and ```objstr``` methods in the same way.
+
 ### config
 
 ```objprint``` formats the output based on some configs

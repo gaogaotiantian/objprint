@@ -2,12 +2,13 @@
 # For details: https://github.com/gaogaotiantian/objprint/blob/master/NOTICE.txt
 
 
+from collections import namedtuple
 import inspect
 import itertools
 import json
 import re
 from types import FunctionType, FrameType
-from typing import Any, Iterable, List, Optional, Set, TypeVar
+from typing import Any, Callable, Iterable, List, Optional, Set, TypeVar, Type
 
 from .color_util import COLOR, set_color
 from .frame_analyzer import FrameAnalyzer
@@ -59,6 +60,8 @@ class _PrintConfig:
 
 
 class ObjPrint:
+    FormatterInfo = namedtuple('FormatterInfo', ['formatter', 'inherit'])
+
     def __init__(self):
         self._configs = _PrintConfig()
 
@@ -70,6 +73,7 @@ class ObjPrint:
         }
         self._sys_print = print
         self.frame_analyzer = FrameAnalyzer()
+        self.type_formatter = {}
 
     def __call__(self, *objs: Any, file: Any = None, format: str = "string", **kwargs) -> Any:
         cfg = self._configs.overwrite(**kwargs)
@@ -130,6 +134,15 @@ class ObjPrint:
         return self._objstr(obj, memo, indent_level=0, cfg=cfg)
 
     def _objstr(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig) -> str:
+        # If a custom formatter is registered for the object's type, use it directly
+        if self.type_formatter:
+            obj_type = type(obj)
+            for cls in obj_type.__mro__:
+                if cls in self.type_formatter and (
+                    cls == obj_type or self.type_formatter[cls].inherit
+                ):
+                    return self.type_formatter[cls].formatter(obj)
+
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
@@ -278,6 +291,36 @@ class ObjPrint:
         if isinstance(line, str):
             return " " * (indent_level * cfg.indent) + line
         return [" " * (indent_level * cfg.indent) + ll for ll in line]
+
+    def register_formatter(
+        self,
+        obj_type: Type[Any],
+        obj_formatter: Optional[Callable[[Any], str]] = None,
+        inherit: bool = True
+    ) -> Optional[Callable[[Callable[[Any], str]], Callable[[Any], str]]]:
+        if obj_formatter is None:
+            def wrapper(obj_formatter: Callable[[Any], str]) -> Callable[[Any], str]:
+                self.register_formatter(obj_type, obj_formatter, inherit)
+                return obj_formatter
+            return wrapper
+
+        if not isinstance(obj_type, type):
+            raise TypeError("obj_type must be a type")
+
+        fmt_info = self.FormatterInfo(formatter=obj_formatter, inherit=inherit)
+        self.type_formatter[obj_type] = fmt_info
+        return None
+
+    def unregister_formatter(self, *obj_types: Type[Any]) -> None:
+        if not obj_types:
+            self.type_formatter.clear()
+        else:
+            for obj_type in obj_types:
+                if obj_type in self.type_formatter:
+                    del self.type_formatter[obj_type]
+
+    def get_formatter(self) -> dict:
+        return self.type_formatter
 
     def _get_header_footer(self, obj: Any, cfg: _PrintConfig):
         obj_type = type(obj)
