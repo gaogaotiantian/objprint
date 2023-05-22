@@ -146,9 +146,7 @@ class ObjPrint:
         # If it's builtin type, return it directly
         if isinstance(obj, str):
             return f"'{obj}'"
-        elif isinstance(obj, int) or \
-                isinstance(obj, float) or \
-                obj is None:
+        elif isinstance(obj, (int, float)) or obj is None:
             return str(obj)
         elif isinstance(obj, FunctionType):
             return f"<function {obj.__name__}>"
@@ -162,7 +160,7 @@ class ObjPrint:
             memo = memo.copy()
             memo.add(id(obj))
 
-        if isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, set):
+        if isinstance(obj, (list, tuple, set)):
             elems = (f"{self._objstr(val, memo, indent_level + 1, cfg)}" for val in obj)
         elif isinstance(obj, dict):
             items = [(key, val) for key, val in obj.items()]
