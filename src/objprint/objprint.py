@@ -305,6 +305,9 @@ class ObjPrint:
         if not isinstance(obj_type, type):
             raise TypeError("obj_type must be a type")
 
+        if not callable(obj_formatter):
+            raise TypeError("obj_formatter must be a callable")
+
         fmt_info = self.FormatterInfo(formatter=obj_formatter, inherit=inherit)
         self.type_formatter[obj_type] = fmt_info
         return None

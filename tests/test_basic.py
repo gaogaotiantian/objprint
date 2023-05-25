@@ -91,3 +91,4 @@ class TestBasic(ObjprintTestCase):
             self.assertEqual(output, {})
 
         self.assertRaises(TypeError, lambda: op.register_formatter(1, hex))
+        self.assertRaises(TypeError, lambda: op.register_formatter(int, 1))
