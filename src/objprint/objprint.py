@@ -175,7 +175,8 @@ class ObjPrint:
         else:
             # It's an object
 
-            # If it has __str__ or __repr__ overloaded, honor that
+            # If it has __str__ or __repr__ overloaded,
+            # honor that(Excepted for CodeType, default __str__ is such unreadable)
             if cfg.honor_existing and \
                     (obj.__class__.__str__ is not object.__str__ or obj.__class__.__repr__ is not object.__repr__) and \
                     not isinstance(obj, CodeType):
