@@ -7,7 +7,7 @@ import inspect
 import itertools
 import json
 import re
-from types import FunctionType, FrameType
+from types import FunctionType, FrameType, CodeType
 from typing import Any, Callable, Iterable, List, Optional, Set, TypeVar, Type
 
 from .color_util import COLOR, set_color
@@ -177,7 +177,8 @@ class ObjPrint:
 
             # If it has __str__ or __repr__ overloaded, honor that
             if cfg.honor_existing and \
-                    (obj.__class__.__str__ is not object.__str__ or obj.__class__.__repr__ is not object.__repr__):
+                    (obj.__class__.__str__ is not object.__str__ or obj.__class__.__repr__ is not object.__repr__) and \
+                    not isinstance(obj, CodeType):
                 # Make sure we indent properly
                 s = str(obj)
                 lines = s.split("\n")
