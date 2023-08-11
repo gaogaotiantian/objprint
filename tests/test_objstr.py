@@ -171,3 +171,9 @@ class TestObjStr(ObjprintTestCase):
         self.assertEqual(s.count("t2"), 1)
         s = objstr(t2, skip_recursion=False, depth=6)
         self.assertEqual(s.count("t2"), 3)
+
+    def test_code_object(self):
+        def _f():
+            pass
+        code_obj = _f.__code__
+        self.assertNotEqual(objstr(code_obj), str(code_obj))
