@@ -16,6 +16,8 @@ from .frame_analyzer import FrameAnalyzer
 
 SourceLine = TypeVar("SourceLine", str, List[str])
 
+_undefined = object()
+
 
 class _PrintConfig:
     enable: bool = True
@@ -245,7 +247,9 @@ class ObjPrint:
                 if cfg.exclude:
                     if any((re.fullmatch(pattern, attr) is not None for pattern in cfg.exclude)):
                         continue
-                attr_val = getattr(obj, attr)
+                attr_val = getattr(obj, attr, _undefined)
+                if attr_val is _undefined:
+                    continue
                 if inspect.ismethod(attr_val) or inspect.isbuiltin(attr_val):
                     if cfg.print_methods:
                         methods.append(attr)
