@@ -245,7 +245,12 @@ class ObjPrint:
                 if cfg.exclude:
                     if any((re.fullmatch(pattern, attr) is not None for pattern in cfg.exclude)):
                         continue
-                attr_val = getattr(obj, attr)
+
+                try:
+                    attr_val = getattr(obj, attr)
+                except AttributeError:
+                    continue
+
                 if inspect.ismethod(attr_val) or inspect.isbuiltin(attr_val):
                     if cfg.print_methods:
                         methods.append(attr)

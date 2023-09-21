@@ -372,3 +372,25 @@ class TestObjprint(ObjprintTestCase):
         self.assertEqual("DerivedClass, B\n", output)
 
         op.unregister_formatter()
+
+    def test_attr_exc(self):
+        class BadAttrClassA:
+            __slots__ = ["a", "b"]
+
+            def __init__(self) -> None:
+                self.b = "b"
+
+        class BadAttrClassB(BadAttrClassA):
+            __slots__ = []
+
+            @property
+            def c(self):
+                raise ValueError
+
+        with io.StringIO() as buf, redirect_stdout(buf):
+            op(BadAttrClassA())
+            with self.assertRaises(ValueError):
+                op(BadAttrClassB())
+            output = buf.getvalue()
+        self.assertNotIn(".a", output)
+        self.assertIn(".b", output)
