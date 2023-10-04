@@ -13,7 +13,7 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
@@ -38,14 +38,14 @@ jobs:
     - name: Build dist and test with unittest
       if: matrix.os != 'windows-latest'
       run: |
-        python setup.py sdist bdist_wheel
+        python -m build
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
         pip install dist/*.whl
         python -m unittest
     - name: Build dist and test with unittest on Windows
       if: matrix.os == 'windows-latest'
       run: |
-        python setup.py sdist bdist_wheel
+        python -m build
         if (Test-Path -Path '.\requirements-test.txt' -PathType Leaf) {pip install -r requirements-test.txt}
         pip install (Get-ChildItem dist/*.whl)
         python -m unittest

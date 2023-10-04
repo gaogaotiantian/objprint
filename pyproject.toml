@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "objprint"
+authors = [{name = "Tian Gao", email = "gaogaotiantian@hotmail.com"}]
+description = "A library that can print Python objects in human readable format"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {file = "LICENSE"}
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://github.com/gaogaotiantian/objprint"
+
+[tool.setuptools.dynamic]
+version = {attr = "objprint.__version__"}

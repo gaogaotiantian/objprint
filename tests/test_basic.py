@@ -71,7 +71,7 @@ class TestBasic(ObjprintTestCase):
             op(a)
             self.assertEqual(buf.getvalue(), "[0xa, 0xd, 0x10]\n")
 
-        op.register_formatter(float, lambda x: f"Float: {round(x,3)}")
+        op.register_formatter(float, lambda x: f"Float: {round(x, 3)}")
         with io.StringIO() as buf, redirect_stdout(buf):
             op(3.14159)
             self.assertEqual(buf.getvalue(), "Float: 3.142\n")
