@@ -231,7 +231,7 @@ class ObjPrint:
             if cfg.label and any(re.fullmatch(pattern, key) is not None for pattern in cfg.label):
                 return set_color(f".{key} = {val}", COLOR.YELLOW)
             elif cfg.color:
-                return f"{set_color('.'+key, COLOR.GREEN)} = {val}"
+                return f"{set_color('.' + key, COLOR.GREEN)} = {val}"
             else:
                 return f".{key} = {val}"
 

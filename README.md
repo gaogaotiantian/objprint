@@ -449,6 +449,6 @@ Please send bug reports and feature requests through [github issue tracker](http
 
 ## License
 
-Copyright Tian Gao, 2020-2021.
+Copyright 2020-2023 Tian Gao.
 
 Distributed under the terms of the  [Apache 2.0 license](https://github.com/gaogaotiantian/objprint/blob/master/LICENSE).
