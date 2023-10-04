@@ -4,7 +4,6 @@
 import ast
 import inspect
 import io
-import sys
 import tokenize
 from types import FrameType
 from typing import List, Optional
