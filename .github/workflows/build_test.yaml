@@ -24,31 +24,18 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      if: matrix.os != 'windows-latest'
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Install dependencies on Windows
-      if: matrix.os == 'windows-latest'
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
-        if (Test-Path -Path '.\requirements.txt' -PathType Leaf) {pip install -r requirements.txt}
+      shell: bash
     - name: Build dist and test with unittest
-      if: matrix.os != 'windows-latest'
       run: |
         python -m build
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
         pip install dist/*.whl
         python -m unittest
-    - name: Build dist and test with unittest on Windows
-      if: matrix.os == 'windows-latest'
-      run: |
-        python -m build
-        if (Test-Path -Path '.\requirements-test.txt' -PathType Leaf) {pip install -r requirements-test.txt}
-        pip install (Get-ChildItem dist/*.whl)
-        python -m unittest
+      shell: bash
     - name: Generate coverage report
       run: |
         coverage run --source objprint --parallel-mode -m unittest
