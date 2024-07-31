@@ -11,9 +11,6 @@ from .executing.executing import Source  # type: ignore
 
 
 class FrameAnalyzer:
-    def __init__(self):
-        pass
-
     def get_args(self, frame: Optional[FrameType]) -> Optional[List[str]]:
         if frame is None:
             return None
