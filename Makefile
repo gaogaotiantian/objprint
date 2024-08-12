@@ -17,7 +17,7 @@ release:
 
 lint:
 	flake8 --exclude src/objprint/executing src/ tests/ --count --max-line-length=127 --ignore=W503
-	mypy src/ --exclude src/objprint/executing --follow-imports=skip
+	mypy src/ --exclude src/objprint/executing --follow-imports=skip --strict
 
 test:
 	python -m unittest

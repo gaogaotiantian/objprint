@@ -8,7 +8,7 @@ import itertools
 import json
 import re
 from types import FunctionType, FrameType
-from typing import Any, Callable, Iterable, List, Optional, Set, TypeVar, Type
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, TypeVar, Type, Tuple
 
 from .color_util import COLOR, set_color
 from .frame_analyzer import FrameAnalyzer
@@ -34,7 +34,7 @@ class _PrintConfig:
     skip_recursion: bool = True
     honor_existing: bool = True
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         for key, val in kwargs.items():
             if hasattr(self, key):
                 if isinstance(val, type(getattr(self, key))):
@@ -44,7 +44,7 @@ class _PrintConfig:
             else:
                 raise ValueError(f"{key} is not configurable")
 
-    def set(self, **kwargs) -> None:
+    def set(self, **kwargs: Any) -> None:
         for key, val in kwargs.items():
             if hasattr(_PrintConfig, key):
                 if isinstance(val, type(getattr(_PrintConfig, key))):
@@ -54,7 +54,7 @@ class _PrintConfig:
             else:
                 raise ValueError(f"{key} is not configurable")
 
-    def overwrite(self, **kwargs) -> "_PrintConfig":
+    def overwrite(self, **kwargs: Any) -> "_PrintConfig":
         ret = _PrintConfig(**kwargs)
         return ret
 
@@ -62,7 +62,7 @@ class _PrintConfig:
 class ObjPrint:
     FormatterInfo = namedtuple('FormatterInfo', ['formatter', 'inherit'])
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._configs = _PrintConfig()
 
         self.indicator_map = {
@@ -73,9 +73,9 @@ class ObjPrint:
         }
         self._sys_print = print
         self.frame_analyzer = FrameAnalyzer()
-        self.type_formatter = {}
+        self.type_formatter: Dict[type, ObjPrint.FormatterInfo] = {}
 
-    def __call__(self, *objs: Any, file: Any = None, format: str = "string", **kwargs) -> Any:
+    def __call__(self, *objs: Any, file: Any = None, format: str = "string", **kwargs: Any) -> Any:
         cfg = self._configs.overwrite(**kwargs)
         if cfg.enable:
             # if inspect.currentframe() returns None, set call_frame to None
@@ -102,6 +102,7 @@ class ObjPrint:
 
             if format == "json":
                 if cfg.arg_name:
+                    assert args is not None
                     for arg, obj in zip(args, objs):
                         self._sys_print(arg)
                         self._sys_print(json.dumps(self.objjson(obj), **kwargs))
@@ -112,6 +113,7 @@ class ObjPrint:
                 # Force color with cfg as if color is not in cfg, objstr will default to False
                 kwargs["color"] = cfg.color
                 if cfg.arg_name:
+                    assert args is not None
                     for arg, obj in zip(args, objs):
                         self._sys_print(arg)
                         self._sys_print(self.objstr(obj, **kwargs), file=file)
@@ -125,7 +127,7 @@ class ObjPrint:
 
         return objs[0] if len(objs) == 1 else objs
 
-    def objstr(self, obj: Any, **kwargs) -> str:
+    def objstr(self, obj: Any, **kwargs: Any) -> str:
         # If no color option is specified, don't use color
         if "color" not in kwargs:
             kwargs["color"] = False
@@ -141,7 +143,7 @@ class ObjPrint:
                 if cls in self.type_formatter and (
                     cls == obj_type or self.type_formatter[cls].inherit
                 ):
-                    return self.type_formatter[cls].formatter(obj)
+                    return self.type_formatter[cls].formatter(obj)  # type: ignore
 
         # If it's builtin type, return it directly
         if isinstance(obj, str):
@@ -217,7 +219,7 @@ class ObjPrint:
 
         return ret
 
-    def _get_custom_object_str(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig):
+    def _get_custom_object_str(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig) -> str:
 
         def _get_method_line(attr: str) -> str:
             if cfg.color:
@@ -264,7 +266,7 @@ class ObjPrint:
 
         return self._get_pack_str(elems, obj, indent_level, cfg)
 
-    def _get_line_number_str(self, curr_frame: Optional[FrameType], cfg: _PrintConfig):
+    def _get_line_number_str(self, curr_frame: Optional[FrameType], cfg: _PrintConfig) -> str:
         if curr_frame is None:
             return "Unknown Line Number"
         curr_code = curr_frame.f_code
@@ -279,7 +281,7 @@ class ObjPrint:
     def disable(self) -> None:
         self.config(enable=False)
 
-    def config(self, **kwargs) -> None:
+    def config(self, **kwargs: Any) -> None:
         self._configs.set(**kwargs)
 
     def install(self, name: str = "op") -> None:
@@ -325,13 +327,13 @@ class ObjPrint:
                 if obj_type in self.type_formatter:
                     del self.type_formatter[obj_type]
 
-    def get_formatter(self) -> dict:
+    def get_formatter(self) -> Dict[type, "ObjPrint.FormatterInfo"]:
         return self.type_formatter
 
-    def _get_header_footer(self, obj: Any, cfg: _PrintConfig):
+    def _get_header_footer(self, obj: Any, cfg: _PrintConfig) -> Tuple[str, str]:
         obj_type = type(obj)
         if obj_type in self.indicator_map:
-            indicator = self.indicator_map[obj_type]
+            indicator = self.indicator_map[obj_type]  # type: ignore
             return indicator[0], indicator[1]
         else:
             if cfg.color:
