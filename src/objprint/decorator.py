@@ -8,7 +8,7 @@ from typing import Callable, Optional, Type, Set, Union
 
 def add_objprint(
         orig_class: Optional[Type] = None,
-        format: str = "string", **kwargs) -> Union[Type, Callable[[Type], Type]]:
+        format: str = "string", **kwargs) -> Union[Type, Callable]:
 
     from . import _objprint
 
