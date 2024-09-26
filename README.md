@@ -115,7 +115,7 @@ s = objstr(my_object)
 
 ### print more
 
-There are some optional information you can print with [config](###config).
+There are some optional information you can print with [config](#config).
 
 #### "Public" Methods
 
