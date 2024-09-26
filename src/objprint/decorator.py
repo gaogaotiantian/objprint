@@ -3,24 +3,24 @@
 
 
 import functools
-from typing import Callable, Optional, Type, Set, Union
+from typing import Any, Callable, Optional, Set, Union, Type
 
 
 def add_objprint(
         orig_class: Optional[Type] = None,
-        format: str = "string", **kwargs) -> Union[Type, Callable[[Type], Type]]:
+        format: str = "string", **kwargs: Any) -> Union[Type, Callable[[Type], Type]]:
 
     from . import _objprint
 
     if format == "json":
         import json
 
-        def __str__(self) -> str:
+        def __str__(self: Any) -> str:
             return json.dumps(_objprint.objjson(self), **kwargs)
     else:
-        def __str__(self) -> str:
+        def __str__(self: Any) -> str:
             cfg = _objprint._configs.overwrite(**kwargs)
-            memo: Optional[Set] = set() if cfg.skip_recursion else None
+            memo: Optional[Set[Any]] = set() if cfg.skip_recursion else None
             return _objprint._get_custom_object_str(self, memo, indent_level=0, cfg=cfg)
 
     if orig_class is None:
