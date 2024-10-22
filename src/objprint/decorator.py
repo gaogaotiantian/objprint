@@ -3,12 +3,29 @@
 
 
 import functools
-from typing import Callable, Optional, Type, Set, Union
+from typing import Callable, Optional, Type, TypeVar, Set, Union, overload
+
+
+T = TypeVar("T", bound=Type)
+
+
+@overload
+def add_objprint(
+        orig_class: None = None,
+        format: str = "string", **kwargs) -> Callable[[T], T]:
+    ...
+
+
+@overload
+def add_objprint(
+        orig_class: T,
+        format: str = "string", **kwargs) -> T:
+    ...
 
 
 def add_objprint(
-        orig_class: Optional[Type] = None,
-        format: str = "string", **kwargs) -> Union[Type, Callable[[Type], Type]]:
+        orig_class: Optional[T] = None,
+        format: str = "string", **kwargs) -> Union[T, Callable[[T], T]]:
 
     from . import _objprint
 
@@ -24,7 +41,7 @@ def add_objprint(
             return _objprint._get_custom_object_str(self, memo, indent_level=0, cfg=cfg)
 
     if orig_class is None:
-        def wrapper(cls: Type) -> Type:
+        def wrapper(cls: T) -> T:
             cls.__str__ = functools.wraps(cls.__str__)(__str__)  # type: ignore
             return cls
         return wrapper
