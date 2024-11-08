@@ -13,14 +13,14 @@ T = TypeVar("T", bound=Type)
 def add_objprint(
         orig_class: None = None,
         format: str = "string", **kwargs) -> Callable[[T], T]:
-    ...
+    ...  # pragma: no cover
 
 
 @overload
 def add_objprint(
         orig_class: T,
         format: str = "string", **kwargs) -> T:
-    ...
+    ...  # pragma: no cover
 
 
 def add_objprint(
