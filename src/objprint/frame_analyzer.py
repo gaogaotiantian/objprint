@@ -53,7 +53,7 @@ class FrameAnalyzer:
             if module is None:
                 return None
             source = inspect.getsource(module)
-        except OSError:
+        except (OSError, TypeError):
             return None
 
         return ast.get_source_segment(source, node)
