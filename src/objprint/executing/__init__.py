@@ -1,6 +1,8 @@
 """
 Get information about what a frame is currently doing. Typical usage:
+
     import executing
+
     node = executing.Source.executing(frame).node
     # node will be an AST node or None
 """

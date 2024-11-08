@@ -7,6 +7,7 @@ from contextlib import redirect_stdout
 import io
 import json
 import re
+import sys
 from unittest.mock import patch
 
 from objprint import op
@@ -340,9 +341,10 @@ class TestObjprint(ObjprintTestCase):
         self.assertEqual("[1, 2, 3]\n[1, 2, 3]\n", output)
 
         with io.StringIO() as buf, redirect_stdout(buf):
-            exec("from objprint import op")
-            exec("b = op([1,2,3])")
-            exec("print(b)")
+            locals = sys._getframe(1).f_locals
+            exec("from objprint import op", globals(), locals)
+            exec("b = op([1,2,3])", globals(), locals)
+            exec("print(b)", globals(), locals)
             output = buf.getvalue()
         self.assertEqual("[1, 2, 3]\n[1, 2, 3]\n", output)
 
