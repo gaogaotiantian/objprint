@@ -57,6 +57,8 @@ jobs:
       env:
         COVERAGE_RUN: True
     - name: Upload report to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4.0.1
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: gaogaotiantian/objprint
         file: ./coverage.xml
