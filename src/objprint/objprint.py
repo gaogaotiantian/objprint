@@ -220,11 +220,17 @@ class ObjPrint:
     def _get_custom_object_str(self, obj: Any, memo: Optional[Set[int]], indent_level: int, cfg: _PrintConfig):
 
         def _get_method_line(attr: str) -> str:
+            try:
+                method_sig = str(inspect.signature(getattr(obj, attr)))
+            except ValueError:
+                # Please consider special handling
+                method_sig = "(<signature unknown>)"
+
             if cfg.color:
                 return f"{set_color('def', COLOR.MAGENTA)} "\
-                    f"{set_color(attr, COLOR.GREEN)}{inspect.signature(getattr(obj, attr))}"
+                    f"{set_color(attr, COLOR.GREEN)}{method_sig}"
             else:
-                return f"def {attr}{inspect.signature(getattr(obj, attr))}"
+                return f"def {attr}{method_sig}"
 
         def _get_line(key: str) -> str:
             val = self._objstr(getattr(obj, key), memo, indent_level + 1, cfg)
