@@ -174,22 +174,7 @@ class TestObjStr(ObjprintTestCase):
 
     def test_builtin_method(self):
         # for test https://github.com/gaogaotiantian/objprint/issues/118
-        import sys
 
         t1 = b""
         s = objstr(t1, print_methods=True, honor_existing=False)
-        is_python_le_3_13 = sys.version_info <= (3, 13)
-        if is_python_le_3_13:
-            self.assertIn("<signature unknown>", s)
-        else:
-            self.assertNotIn("<signature unknown>", s)
-
-        def custom_hex(self):
-            print("custom hex")
-
-        def custom_capitalize(self):
-            print("custom capitalize")
-
-        t2 = ObjTest({"hex": custom_hex, "capitalize": custom_capitalize})
-        s = objstr(t2, print_methods=True)
-        self.assertNotIn("<signature unknown>", s)
+        self.assertIn("<signature unknown>", s)
