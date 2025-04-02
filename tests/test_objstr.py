@@ -171,3 +171,10 @@ class TestObjStr(ObjprintTestCase):
         self.assertEqual(s.count("t2"), 1)
         s = objstr(t2, skip_recursion=False, depth=6)
         self.assertEqual(s.count("t2"), 3)
+
+    def test_builtin_method(self):
+        # for test https://github.com/gaogaotiantian/objprint/issues/118
+
+        t1 = b""
+        s = objstr(t1, print_methods=True, honor_existing=False)
+        self.assertIn("<signature unknown>", s)
